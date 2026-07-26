@@ -862,13 +862,22 @@
         navigate('scanner', true); 
         
         try {
-            if (window.self !== window.top) throw new Error("Iframe blocked camera");
+            // ขอสิทธิ์และเปิดกล้อง (ใช้งานได้เต็มที่บน Vercel)
+            appState.cameraStream = await navigator.mediaDevices.getUserMedia({ 
+                video: { facingMode: { ideal: "environment" } } 
+            });
+            const video = document.getElementById('video-stream');
+            video.srcObject = appState.cameraStream;
+            video.style.display = 'block';
+            document.getElementById('scanner-guideline').style.display = 'flex';
+            document.getElementById('btn-capture').style.display = 'flex';
+            document.getElementById('btn-upload-fallback').style.display = 'none';
         } catch (err) {
-            console.warn("Camera blocked by GAS environment. Using Fallback mode.");
+            // Fallback: หากถูกบล็อกโดย Browser, ปฏิเสธสิทธิ์ หรือติดข้อจำกัด Iframe ของ GAS
+            console.warn("Camera blocked by environment or no permission. Using Fallback mode.", err);
             document.getElementById('scanner-guideline').style.display = 'none';
             document.getElementById('btn-capture').style.display = 'none';
             document.getElementById('btn-upload-fallback').style.display = 'flex';
-            return;
         }
     }
 
