@@ -45,7 +45,7 @@
             background-position: center;
             background-attachment: fixed;
             filter: blur(3px); 
-            opacity: 0.6;
+            opacity: 0.8;
             z-index: -2;
             pointer-events: none;
             transition: background-image 0.5s ease;
@@ -65,7 +65,7 @@
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
         /* ==================================
-           PRINT STYLES (แก้ปัญหา Chrome 100%)
+           PRINT STYLES (In-page HTML Table Layout 100% Stable)
            ================================== */
         @media print {
             body, html { 
@@ -103,10 +103,10 @@
     <div id="dynamic-nav-bg" class="absolute inset-0 bg-cover bg-center z-[-1] pointer-events-none opacity-40" style="filter: blur(4px);"></div>
 
     <div class="flex flex-col items-center justify-center pt-6 pb-4 px-4 relative z-10 text-center">
-        <!-- Logo & Title (Horizontal Layout) -->
+        <!-- Logo & Title (Horizontal Layout - Center Aligned) -->
         <div class="flex flex-row items-center justify-center gap-4 mb-3">
-            <div class="w-12 h-12 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-2xl flex items-center justify-center shadow-lg transform hover:scale-105 transition-transform">
-                <i class="ph-fill ph-check-square-offset text-3xl text-white"></i>
+            <div class="w-10 h-10 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-xl flex items-center justify-center shadow-lg transform hover:scale-105 transition-transform">
+                <i class="ph-fill ph-check-square-offset text-2xl text-white"></i>
             </div>
             <span class="font-bold text-2xl sm:text-3xl text-dark tracking-tight drop-shadow-sm">STW Grader</span>
         </div>
@@ -117,30 +117,30 @@
             <span>ข้อมูลปัจจุบัน: ภาคเรียนที่ <span id="ctx-term" class="font-bold text-emerald-700 text-base"></span> ปีการศึกษา <span id="ctx-year" class="font-bold text-emerald-700 text-base"></span> (สอบ<span id="ctx-type" class="font-bold text-emerald-700 text-base"></span>)</span>
         </div>
     </div>
-    
-    <!-- Menu Tabs (แยกมาอยู่ด้านล่าง Header) -->
-    <nav class="relative z-10 flex items-center justify-center space-x-2 sm:space-x-4 py-3 px-2 bg-slate-50/80 border-t border-slate-100">
-        <button onclick="navigate('dashboard')" id="nav-dashboard" class="nav-btn active flex items-center px-5 py-2.5 rounded-xl text-primary font-medium bg-emerald-100/50 shadow-sm border border-emerald-200 transition-colors">
-            <i class="ph-fill ph-squares-four text-xl mr-2"></i>
-            <span class="text-sm sm:text-base">แดชบอร์ด</span>
-        </button>
-        <button onclick="navigate('exam')" id="nav-exam" class="nav-btn flex items-center px-5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-100 transition-colors border border-transparent">
-            <i class="ph ph-files text-xl mr-2"></i>
-            <span class="text-sm sm:text-base">จัดการข้อสอบ</span>
-        </button>
-        <button onclick="openModal('modal-admin-auth')" id="nav-settings" class="nav-btn flex items-center px-5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-100 transition-colors border border-transparent">
-            <i class="ph ph-gear text-xl mr-2"></i>
-            <span class="text-sm sm:text-base">ตั้งค่า</span>
-        </button>
-    </nav>
 </header>
+
+<!-- Menu Tabs (Separated from Header) -->
+<nav class="relative z-10 flex items-center justify-center space-x-2 sm:space-x-4 py-3 px-2 bg-slate-50/80 border-b border-slate-200 shadow-sm">
+    <button onclick="navigate('dashboard')" id="nav-dashboard" class="nav-btn active flex items-center px-5 py-2.5 rounded-xl text-primary font-medium bg-emerald-100/50 shadow-sm border border-emerald-200 transition-colors">
+        <i class="ph-fill ph-squares-four text-xl mr-2"></i>
+        <span class="text-sm sm:text-base">แดชบอร์ด</span>
+    </button>
+    <button onclick="navigate('exam')" id="nav-exam" class="nav-btn flex items-center px-5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-100 transition-colors border border-transparent">
+        <i class="ph ph-files text-xl mr-2"></i>
+        <span class="text-sm sm:text-base">จัดการข้อสอบ</span>
+    </button>
+    <button onclick="openModal('modal-admin-auth')" id="nav-settings" class="nav-btn flex items-center px-5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-100 transition-colors border border-transparent">
+        <i class="ph ph-gear text-xl mr-2"></i>
+        <span class="text-sm sm:text-base">ตั้งค่า</span>
+    </button>
+</nav>
 
 <main class="flex-1 overflow-y-auto relative">
     
     <!-- View: Dashboard -->
     <div id="view-dashboard" class="view-section active p-6 md:p-10 max-w-6xl mx-auto relative z-10">
-        <header class="mb-8 text-center md:text-left">
-            <h1 class="text-2xl md:text-3xl font-bold text-dark drop-shadow-sm bg-white/70 inline-block px-4 py-2 rounded-xl backdrop-blur-sm border border-white">แดชบอร์ด</h1>
+        <header class="mb-6 text-center md:text-left">
+            <h1 class="text-xl md:text-2xl font-bold text-dark drop-shadow-sm bg-white/70 inline-block px-4 py-2 rounded-xl backdrop-blur-sm border border-white">แดชบอร์ด</h1>
         </header>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
@@ -177,9 +177,9 @@
 
     <!-- View: Exam -->
     <div id="view-exam" class="view-section p-6 md:p-10 max-w-6xl mx-auto relative z-10">
-        <header class="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
+        <header class="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
             <div>
-                <h1 class="text-2xl md:text-3xl font-bold text-dark drop-shadow-sm bg-white/70 inline-block px-4 py-2 rounded-xl backdrop-blur-sm border border-white">จัดการข้อสอบ</h1>
+                <h1 class="text-xl md:text-2xl font-bold text-dark drop-shadow-sm bg-white/70 inline-block px-4 py-2 rounded-xl backdrop-blur-sm border border-white">จัดการข้อสอบ</h1>
             </div>
             <button onclick="openModal('modal-create-exam')" class="bg-gradient-to-r from-emerald-500 to-teal-500 text-white px-6 py-3 rounded-xl font-medium shadow-lg hover:shadow-xl transition transform hover:-translate-y-0.5 flex items-center justify-center border border-emerald-400">
                 <i class="ph ph-plus-circle text-2xl mr-2"></i> สร้างข้อสอบใหม่
@@ -208,7 +208,7 @@
     <!-- View: Settings -->
     <div id="view-settings" class="view-section p-6 md:p-10 max-w-3xl mx-auto relative z-10">
         <header class="mb-6 text-center md:text-left">
-            <h1 class="text-2xl font-bold text-dark drop-shadow-sm bg-white/70 inline-block px-4 py-1.5 rounded-xl backdrop-blur-sm border border-white">ตั้งค่าระบบ (Admin)</h1>
+            <h1 class="text-xl font-bold text-dark drop-shadow-sm bg-white/70 inline-block px-4 py-1.5 rounded-xl backdrop-blur-sm border border-white">ตั้งค่าระบบ (Admin)</h1>
         </header>
 
         <div class="glass-card rounded-2xl p-6 md:p-8 border border-white">
@@ -241,7 +241,7 @@
                     <h3 class="text-lg font-bold text-emerald-800 border-b border-emerald-100 pb-2 mt-6">ความปลอดภัยและธีม</h3>
                     <div>
                         <label class="block text-sm font-medium text-slate-700 mb-2">ตั้งค่ารหัสผ่าน Admin ใหม่</label>
-                        <input type="text" id="set-admin-password" class="w-full border border-slate-300 rounded-lg px-4 py-2.5 outline-none bg-white/95" placeholder="รหัสผ่านเข้าหน้าตั้งค่า">
+                        <input type="text" id="set-admin-password" class="w-full border border-slate-300 rounded-lg px-4 py-2.5 outline-none bg-white/95" placeholder="รหัสผ่านเข้าหน้าตั้งค่า (เช่น admin123)">
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
@@ -290,12 +290,9 @@
         </div>
 
         <div class="bg-slate-800 p-6 flex justify-center items-center shadow-lg z-30 min-h-[100px]">
-            <!-- ปุ่มกล้องปกติ (ซ่อนไว้สำหรับ iframe) -->
             <button id="btn-capture" onclick="captureAndProcess()" class="bg-emerald-500 text-white w-16 h-16 rounded-full flex items-center justify-center shadow-[0_0_15px_rgba(16,185,129,0.5)] hover:scale-105 transition-transform border-4 border-slate-800 ring-2 ring-emerald-500 hidden">
                 <i class="ph-fill ph-camera text-2xl"></i>
             </button>
-            
-            <!-- ปุ่ม Fallback กรณีแอปสคริปต์บล็อกกล้อง -->
             <button id="btn-upload-fallback" onclick="document.getElementById('fallback-upload').click()" class="bg-blue-500 text-white px-6 py-3 rounded-xl flex items-center justify-center shadow-[0_0_15px_rgba(59,130,246,0.5)] hover:scale-105 transition-transform font-medium">
                 <i class="ph-fill ph-image text-2xl mr-2"></i> ถ่ายรูป / เลือกรูปภาพกระดาษคำตอบ
             </button>
@@ -420,7 +417,7 @@
 </div>
 
 <!-- Alert Box -->
-<div id="alert-box" class="fixed top-5 left-1/2 transform -translate-x-1/2 bg-slate-800 text-white px-6 py-3 rounded-xl shadow-2xl z-[100] flex items-center transition-all duration-300 opacity-0 -translate-y-10 pointer-events-none">
+<div id="alert-box" class="fixed top-5 left-1/2 transform -translate-x-1/2 bg-slate-800 text-white px-6 py-3 rounded-xl shadow-2xl z-[100] flex items-center transition-all duration-300 opacity-0 -translate-y-10 pointer-events-none w-[90%] max-w-sm">
     <i class="ph-fill ph-bell-ringing text-xl mr-3 text-emerald-400" id="alert-icon"></i>
     <div>
         <h4 class="font-bold text-sm" id="alert-title">Title</h4>
@@ -453,7 +450,7 @@
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     redirect: 'follow'
                 })
-                .then(res => { if (!res.ok) throw new Error("HTTP error!"); return res.json(); })
+                .then(res => res.json())
                 .then(result => { if (result.error) reject(new Error(result.error)); else resolve(result.data); })
                 .catch(err => { 
                     console.warn("GAS Fetch failed, using Local Storage as fallback", err);
@@ -530,16 +527,15 @@
 
         if (viewId !== 'scanner') {
             stopScanner();
-            // โหลดข้อมูลแบบ Instant Load จาก Memory
             if(viewId === 'dashboard') renderDashboard();
             if(viewId === 'exam') renderExamCards();
             if(viewId === 'settings') {
                 document.getElementById('set-year').value = appState.settings.year || '2567';
                 document.getElementById('set-term').value = appState.settings.term || '1';
                 document.getElementById('set-exam-type').value = appState.settings.examType || 'กลางภาค';
-                document.getElementById('set-admin-password').value = appState.settings.adminPassword || 'admin123';
                 document.getElementById('set-bg-url').value = appState.settings.bgUrl || '';
                 document.getElementById('set-header-bg-url').value = appState.settings.headerBgUrl || '';
+                document.getElementById('set-admin-password').value = ''; // ปล่อยว่างเพื่อความปลอดภัยเวลาเปิดหน้า
             }
         }
     }
@@ -555,15 +551,11 @@
     }
 
     async function initApp() {
-        showLoader('เชื่อมต่อฐานข้อมูล STW Grader...');
+        showLoader('โหลดข้อมูลจากฐานข้อมูล...');
         try {
             await runGasFunc('setupDatabase');
-            
             const set = await runGasFunc('getSettings');
-            if (set && Object.keys(set).length > 0) {
-                appState.settings = { ...appState.settings, ...set };
-            }
-            
+            if (set && Object.keys(set).length > 0) appState.settings = { ...appState.settings, ...set };
             const data = await runGasFunc('getExams');
             appState.allExams = data || [];
             
@@ -585,15 +577,24 @@
 
     async function saveSettingsUI(e) {
         e.preventDefault();
-        appState.settings = {
-            year: document.getElementById('set-year').value, term: document.getElementById('set-term').value, examType: document.getElementById('set-exam-type').value,
-            adminPassword: document.getElementById('set-admin-password').value || 'admin123', bgUrl: document.getElementById('set-bg-url').value, headerBgUrl: document.getElementById('set-header-bg-url').value
-        };
+        const newPwd = document.getElementById('set-admin-password').value.trim();
+        if(newPwd) appState.settings.adminPassword = newPwd;
+
+        appState.settings.year = document.getElementById('set-year').value;
+        appState.settings.term = document.getElementById('set-term').value;
+        appState.settings.examType = document.getElementById('set-exam-type').value;
+        appState.settings.bgUrl = document.getElementById('set-bg-url').value;
+        appState.settings.headerBgUrl = document.getElementById('set-header-bg-url').value;
+        
         showLoader('กำลังบันทึก...');
         try {
             const res = await runGasFunc('saveSettings', appState.settings);
-            if(res.success) { applyTheme(); showAlert('สำเร็จ', 'บันทึกการตั้งค่าเรียบร้อยแล้ว'); updateLocalExams(); navigate('dashboard'); } 
-            else showAlert('ข้อผิดพลาด', res.message, 'error'); 
+            if(res.success) { 
+                applyTheme(); 
+                showAlert('สำเร็จ', 'บันทึกการตั้งค่าเรียบร้อยแล้ว'); 
+                updateLocalExams(); 
+                navigate('dashboard'); 
+            } else showAlert('ข้อผิดพลาด', res.message, 'error'); 
         } catch(e) { showAlert('ข้อผิดพลาด', 'บันทึกไม่สำเร็จ', 'error'); } finally { hideLoader(); }
     }
 
@@ -603,7 +604,6 @@
         const gradedExams = appState.exams.filter(e => e.Status === 'Graded').length;
         document.getElementById('stat-scanned').innerText = gradedExams;
 
-        // เรนเดอร์รายการวิชาล่าสุด 5 รายการ
         const recentContainer = document.getElementById('recent-exams-list');
         if (recentContainer) {
             recentContainer.innerHTML = '';
@@ -700,7 +700,7 @@
             if(res.success) { 
                 showAlert('สำเร็จ', 'สร้างข้อสอบเรียบร้อยแล้ว'); 
                 document.getElementById('form-create-exam').reset(); 
-                appState.allExams.unshift(newExam); 
+                appState.allExams.unshift(newExam);
                 updateLocalExams();
             } else showAlert('ข้อผิดพลาด', res.message, 'error'); 
         } catch(e) { showAlert('ข้อผิดพลาด', 'เชื่อมต่อ Server ไม่สำเร็จ', 'error'); } finally { hideLoader(); }
@@ -760,7 +760,7 @@
         } catch(e) { showAlert('ข้อผิดพลาด', 'บันทึกไม่สำเร็จ', 'error'); } finally { hideLoader(); }
     }
 
-    // --- STREAMING_CHUNK:Print PDF Design (HTML Table + Float Strategy) ---
+    // --- STREAMING_CHUNK:Print PDF HTML Table 100% Native ---
     function printPaper(examID) {
         const exam = appState.exams.find(e => e.ExamID === examID);
         if (!exam) return;
@@ -778,36 +778,33 @@
         else gridCols = 4;
 
         let qsPerCol = Math.ceil(totalQs / gridCols);
-        
         let columnsHtml = ``; 
-        let colWidth = Math.floor(100 / gridCols) - 1; 
+        let colWidth = Math.floor(100 / gridCols); 
 
         for (let c = 0; c < gridCols; c++) {
-            columnsHtml += `<div style="float: left; width: ${colWidth}%; margin-right: 1%; box-sizing: border-box;">`;
+            columnsHtml += `<div style="float: left; width: ${colWidth}%; box-sizing: border-box;">
+                <table style="width: 100%; border-collapse: collapse;">`;
             
             for (let i = 0; i < qsPerCol; i++) {
                 let currentQ = (c * qsPerCol) + i + 1;
                 if (currentQ > totalQs) break;
                 
-                let bubblesHtml = letters.map(l => `<td style="width: 25px; text-align: center; padding: 2px 0;"><div style="width: 21px; height: 21px; border: 1.5px solid #000; border-radius: 50%; text-align: center; line-height: 19px; font-size: 11px; color: #777; margin: 0 auto; box-sizing: border-box;">${l}</div></td>`).join('');
+                let bubblesHtml = letters.map(l => `<td style="width: 26px; text-align: center; padding: 1.5px 0;"><div style="width: 22px; height: 22px; border: 1.5px solid #000; border-radius: 50%; text-align: center; line-height: 20px; font-size: 11px; color: #777; margin: 0 auto; box-sizing: border-box;">${l}</div></td>`).join('');
                 
                 columnsHtml += `
-                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 5px; page-break-inside: avoid;">
-                        <tr>
-                            <td style="width: 32px; text-align: right; padding-right: 8px; font-weight: bold; font-size: 14px; color: #000;">${currentQ}.</td>
-                            ${bubblesHtml}
-                        </tr>
-                    </table>
+                    <tr>
+                        <td style="width: 32px; text-align: right; padding-right: 6px; font-weight: bold; font-size: 13px; color: #000; height: 28px;">${currentQ}.</td>
+                        ${bubblesHtml}
+                    </tr>
                 `;
             }
-            columnsHtml += `</div>`;
+            columnsHtml += `</table></div>`;
         }
-        columnsHtml += `<div style="clear: both;"></div>`;
 
         let displayClass = exam.ClassLevel.toString().startsWith('ม.') ? exam.ClassLevel : 'ม.' + exam.ClassLevel;
 
         let paperHtml = `
-            <div style="width: 210mm; height: 296mm; max-height: 296mm; overflow: hidden; position: relative; margin: 0 auto; background: #fff; padding: 12mm 18mm; box-sizing: border-box; font-family: 'Sarabun', sans-serif;">
+            <div style="width: 210mm; height: 296mm; overflow: hidden; position: relative; margin: 0 auto; background: #fff; padding: 10mm 15mm; box-sizing: border-box; font-family: 'Sarabun', sans-serif;">
                 <div style="position: absolute; top: 12mm; left: 12mm; width: 25px; height: 25px; background: #000;"></div>
                 <div style="position: absolute; top: 12mm; right: 12mm; width: 25px; height: 25px; background: #000;"></div>
                 <div style="position: absolute; bottom: 12mm; left: 12mm; width: 25px; height: 25px; background: #000;"></div>
@@ -829,13 +826,17 @@
                         </tr>
                     </table>
                 </div>
-                
                 <div style="width: 100%;">${columnsHtml}</div>
+                <div style="clear: both;"></div>
             </div>
         `;
 
-        document.getElementById('print-area').innerHTML = paperHtml;
+        const printArea = document.getElementById('print-area');
+        printArea.innerHTML = paperHtml;
+        
         window.print();
+        
+        setTimeout(() => { printArea.innerHTML = ''; }, 1000);
     }
 
     // --- STREAMING_CHUNK:OpenCV & Camera Scanner with Fallback ---
@@ -862,19 +863,17 @@
         navigate('scanner', true); 
         
         try {
-            // ขอสิทธิ์และเปิดกล้อง (ใช้งานได้เต็มที่บน Vercel)
+            const video = document.getElementById('video-stream');
             appState.cameraStream = await navigator.mediaDevices.getUserMedia({ 
                 video: { facingMode: { ideal: "environment" } } 
             });
-            const video = document.getElementById('video-stream');
             video.srcObject = appState.cameraStream;
             video.style.display = 'block';
             document.getElementById('scanner-guideline').style.display = 'flex';
             document.getElementById('btn-capture').style.display = 'flex';
             document.getElementById('btn-upload-fallback').style.display = 'none';
         } catch (err) {
-            // Fallback: หากถูกบล็อกโดย Browser, ปฏิเสธสิทธิ์ หรือติดข้อจำกัด Iframe ของ GAS
-            console.warn("Camera blocked by environment or no permission. Using Fallback mode.", err);
+            console.warn("Camera blocked or unavailable. Using Fallback mode.");
             document.getElementById('scanner-guideline').style.display = 'none';
             document.getElementById('btn-capture').style.display = 'none';
             document.getElementById('btn-upload-fallback').style.display = 'flex';
@@ -887,7 +886,7 @@
             appState.cameraStream = null; 
         }
         const video = document.getElementById('video-stream'); 
-        if(video) video.srcObject = null;
+        if(video) { video.srcObject = null; video.style.display = 'none'; }
     }
 
     function handleImageUpload(e) {
@@ -936,6 +935,56 @@
     function processScanLogic() {
         setTimeout(async () => {
             try {
+                if (!appState.cvReady) {
+                    hideLoader(); showAlert('ข้อผิดพลาด', 'OpenCV ยังโหลดไม่เสร็จ', 'error'); return;
+                }
+
+                // 1. ดึงภาพจาก Canvas เข้าสู่ OpenCV
+                let src = cv.imread('canvas-output');
+                let gray = new cv.Mat();
+                cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY, 0);
+                
+                // 2. เบลอภาพและหาเส้นขอบ (Edge Detection)
+                let blurred = new cv.Mat();
+                cv.GaussianBlur(gray, blurred, new cv.Size(5, 5), 0, 0, cv.BORDER_DEFAULT);
+                let edges = new cv.Mat();
+                cv.Canny(blurred, edges, 75, 200);
+                
+                // 3. ค้นหารูปร่าง (Contours)
+                let contours = new cv.MatVector();
+                let hierarchy = new cv.Mat();
+                cv.findContours(edges, contours, hierarchy, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
+                
+                let foundPaper = false;
+                
+                // 4. ตรวจสอบว่ามีรูปร่างไหนเป็น "สี่เหลี่ยมขนาดใหญ่" (กระดาษ) หรือไม่
+                for (let i = 0; i < contours.size(); ++i) {
+                    let cnt = contours.get(i);
+                    let area = cv.contourArea(cnt);
+                    // ตรวจสอบว่าพื้นที่ใหญ่กว่า 15% ของรูปทั้งหมดหรือไม่
+                    if (area > (src.cols * src.rows * 0.15)) { 
+                        let peri = cv.arcLength(cnt, true);
+                        let approx = new cv.Mat();
+                        cv.approxPolyDP(cnt, approx, 0.02 * peri, true);
+                        // ถ้ามี 4 มุม แสดงว่าเป็นกระดาษ
+                        if (approx.rows === 4) {
+                            foundPaper = true;
+                        }
+                        approx.delete();
+                    }
+                }
+                
+                // คืนหน่วยความจำให้ระบบ
+                src.delete(); gray.delete(); blurred.delete(); edges.delete(); contours.delete(); hierarchy.delete();
+
+                // 5. ตัดสินผลลัพธ์
+                if (!foundPaper) {
+                    hideLoader();
+                    showAlert('ไม่พบกระดาษคำตอบ', 'กรุณาถ่ายให้เห็นขอบกระดาษทั้ง 4 ด้านชัดเจน', 'error');
+                    return;
+                }
+
+                // หากพบกระดาษ (ในเฟสนี้จะยังเป็นการจำลองสุ่มคะแนนไปก่อน จนกว่าจะทำระบบอ่านจุด OMR สมบูรณ์)
                 await new Promise(r => setTimeout(r, 500));
                 
                 const scorePayload = { 
@@ -954,7 +1003,11 @@
                         updateLocalExams();
                     }
                 }
-            } catch(e) { hideLoader(); showAlert('เกิดข้อผิดพลาด', 'การตรวจล้มเหลว', 'error'); }
+            } catch(e) { 
+                console.error(e);
+                hideLoader(); 
+                showAlert('เกิดข้อผิดพลาด', 'การวิเคราะห์ภาพล้มเหลว', 'error'); 
+            }
         }, 100);
     }
 
