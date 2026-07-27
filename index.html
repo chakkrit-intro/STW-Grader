@@ -277,7 +277,7 @@
             <div class="bg-slate-50 rounded-xl p-3 border border-slate-100 mb-5 flex justify-center gap-4 text-xs font-medium text-slate-600">
                 <span class="flex items-center"><span class="w-3 h-3 rounded-full bg-green-500 mr-1.5 inline-block border border-green-600"></span> ถูกต้อง</span>
                 <span class="flex items-center"><span class="w-3 h-3 rounded-full bg-red-500 mr-1.5 inline-block border border-red-600"></span> ผิด</span>
-                <span class="flex items-center"><span class="w-3 h-3 rounded-full bg-yellow-400 mr-1.5 inline-block border border-yellow-500"></span> ว่าง/ไม่ชัด</span>
+                <span class="flex items-center"><span class="w-3 h-3 rounded-full bg-cyan-400 mr-1.5 inline-block border border-cyan-500"></span> ว่าง/ไม่ชัด</span>
             </div>
 
             <div class="flex gap-3">
@@ -786,27 +786,50 @@
                 src = cv.imread('canvas-output');
                 let dst = new cv.Mat();
                 cv.cvtColor(src, dst, cv.COLOR_RGBA2GRAY, 0);
+                
+                // 1. ปรับปรุงการจับขอบกระดาษให้แม่นยำขึ้นแม้ในสภาพแสงน้อย และลดแสงสะท้อน
                 cv.GaussianBlur(dst, dst, new cv.Size(5, 5), 0, 0, cv.BORDER_DEFAULT);
-                cv.Canny(dst, dst, 75, 200);
+                cv.Canny(dst, dst, 30, 100); // ลด Threshold ลงเพื่อให้จับขอบกระดาษจริงได้ง่ายขึ้น
+
+                // 2. ใช้ Morphology เชื่อมเส้นขอบกระดาษที่อาจจะขาดหาย (รอยต่อกระดาษกับโต๊ะ)
+                let kernel = cv.Mat.ones(5, 5, cv.CV_8U);
+                cv.morphologyEx(dst, dst, cv.MORPH_CLOSE, kernel);
+                kernel.delete();
 
                 let contours = new cv.MatVector(); let hierarchy = new cv.Mat();
                 cv.findContours(dst, contours, hierarchy, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
 
                 let docCnt = null; let maxArea = 0;
+                let imgArea = src.cols * src.rows;
+
                 for (let i = 0; i < contours.size(); ++i) {
                     let cnt = contours.get(i);
                     let area = cv.contourArea(cnt);
-                    // Filter: Must be large enough to be a paper
-                    if (area > (src.cols * src.rows * 0.15)) { 
+                    
+                    // Filter: ต้องมีขนาดใหญ่พอ (อย่างน้อย 10% ของภาพ)
+                    if (area > (imgArea * 0.10)) { 
                         let peri = cv.arcLength(cnt, true); let approx = new cv.Mat();
                         cv.approxPolyDP(cnt, approx, 0.02 * peri, true);
-                        if (approx.rows === 4 && area > maxArea) { maxArea = area; if(docCnt) docCnt.delete(); docCnt = approx.clone(); }
+                        
+                        // ตรวจสอบว่าเป็น 4 เหลี่ยม และมีสัดส่วนใกล้เคียงกระดาษ A4 (กว้าง/ยาว ประมาณ 0.7 หรือ 1.4)
+                        if (approx.rows === 4) { 
+                            let rect = cv.boundingRect(approx);
+                            let aspect = rect.width / rect.height;
+                            let isPortraitA4 = aspect > 0.60 && aspect < 0.85; // แนวตั้ง
+                            let isLandscapeA4 = aspect > 1.2 && aspect < 1.6;  // แนวนอน (เผื่อถ่ายกลับหัว)
+                            
+                            if ((isPortraitA4 || isLandscapeA4) && area > maxArea) { 
+                                maxArea = area; 
+                                if(docCnt) docCnt.delete(); 
+                                docCnt = approx.clone(); 
+                            }
+                        }
                         approx.delete();
                     }
                 }
 
                 if (!docCnt) {
-                    hideLoader(); showAlert('ไม่พบกระดาษคำตอบ', 'โปรดจัดกระดาษให้เห็นขอบสี่เหลี่ยม หรือวางบนพื้นสีเข้มตัดกับกระดาษ', 'error');
+                    hideLoader(); showAlert('ไม่พบกระดาษคำตอบ', 'โปรดวางบนพื้นสีเข้ม ตัดกับกระดาษ และให้เห็นมุมทั้ง 4', 'error');
                     if(src) src.delete(); dst.delete(); contours.delete(); hierarchy.delete();
                     if(appState.cameraStream) { resumeScanner(); }
                     return;
@@ -820,7 +843,7 @@
 
                 let srcTri = cv.matFromArray(4, 1, cv.CV_32FC2, [ orderedPts[0].x, orderedPts[0].y, orderedPts[1].x, orderedPts[1].y, orderedPts[2].x, orderedPts[2].y, orderedPts[3].x, orderedPts[3].y ]);
                 
-                // Fixed Warp Size for precision mapping (Half of A4 300DPI)
+                // Fixed Warp Size 
                 let w = 1240; let h = 1754; 
                 let dstTri = cv.matFromArray(4, 1, cv.CV_32FC2, [ 0, 0, w, 0, w, h, 0, h ]);
 
@@ -832,22 +855,16 @@
                 let maxScore = appState.currentExam.FullScore;
                 let optionsCount = appState.currentExam.OptionsCount;
 
-                // --- PRECISION GRID MAPPING (Calibrated for 1240x1754 Canvas) ---
-                // ปรับจูนระยะจากภาพตัวอย่าง (20, 30, 40, 60 ข้อ)
+                // --- 3. PRECISION GRID MAPPING (คาร์ลิเบรทใหม่จากโค้ด Print จริง) ---
                 let qConfig = {};
-                let radius = 18; // ขยายรัศมีเล็กน้อยเพื่อให้ครอบคลุมวงกลมชัดเจนขึ้น
-                let gX = 42;     // ระยะห่างแกน X ระหว่างช้อยส์ A B C D 
-                let gY = 46;     // ระยะห่างแกน Y ระหว่างข้อ
-                let sY = 500;    // เลื่อน Start Y ลงมาเพื่อหลบส่วนหัวกระดาษ
-
                 if (qCount <= 20) {
-                    qConfig = { rows: 10, r: radius, gapX: gX, gapY: gY, startY: sY, colXs: [220, 740] };
+                    qConfig = { rows: 10, r: 17, gapX: 40, gapY: 44, startY: 370, colXs: [195, 715] };
                 } else if (qCount <= 30) {
-                    qConfig = { rows: 15, r: radius, gapX: gX, gapY: gY, startY: sY, colXs: [220, 740] };
+                    qConfig = { rows: 15, r: 17, gapX: 40, gapY: 44, startY: 370, colXs: [195, 715] };
                 } else if (qCount <= 40) {
-                    qConfig = { rows: 20, r: radius, gapX: gX, gapY: gY, startY: sY, colXs: [220, 740] };
+                    qConfig = { rows: 20, r: 17, gapX: 40, gapY: 44, startY: 370, colXs: [195, 715] };
                 } else { // 60
-                    qConfig = { rows: 20, r: radius, gapX: 41, gapY: 46, startY: sY, colXs: [160, 560, 960] };
+                    qConfig = { rows: 20, r: 17, gapX: 40, gapY: 44, startY: 370, colXs: [180, 526, 865] };
                 }
 
                 let r = qConfig.r;
@@ -886,7 +903,6 @@
                         let y = Math.max(0, cy - r);
                         let rect = new cv.Rect(x, y, r * 2, r * 2);
                         
-                        // Prevent out of bounds
                         if(x + r*2 > w) rect.width = w - x;
                         if(y + r*2 > h) rect.height = h - y;
 
@@ -897,32 +913,28 @@
                         if (pixelCount > maxPixels) { maxPixels = pixelCount; bestAns = optLetters[j]; }
                     }
 
-                    // Must have at least 25% fill to be considered marked
-                    let minFillArea = (r * 2 * r * 2) * 0.25;
+                    // 4. ลด Threshold ความเข้มของการฝนลงเหลือ 20% ของพื้นที่วงกลม ป้องกันดินสอไม่เข้ม
+                    let minFillArea = (r * 2 * r * 2) * 0.20;
                     
                     if (maxPixels > minFillArea) {
                         if (bestAns === keys[i]) {
                             score += scorePerQ;
-                            cv.circle(warped, new cv.Point(baseX + (optLetters.indexOf(bestAns) * gapX), baseY), r+4, new cv.Scalar(0, 255, 0, 255), 4); // Green (Thick) for correct
+                            cv.circle(warped, new cv.Point(baseX + (optLetters.indexOf(bestAns) * gapX), baseY), r+4, new cv.Scalar(0, 255, 0, 255), 4); // เขียว (ถูก)
                         } else {
-                            cv.circle(warped, new cv.Point(baseX + (optLetters.indexOf(bestAns) * gapX), baseY), r+4, new cv.Scalar(255, 0, 0, 255), 4); // Red (Thick) for wrong
-                            // Optional: Highlight the correct answer with a small green circle
+                            cv.circle(warped, new cv.Point(baseX + (optLetters.indexOf(bestAns) * gapX), baseY), r+4, new cv.Scalar(255, 0, 0, 255), 4); // แดง (ผิด)
                             if (keys[i]) {
-                                cv.circle(warped, new cv.Point(baseX + (optLetters.indexOf(keys[i]) * gapX), baseY), r-2, new cv.Scalar(0, 255, 0, 255), 2);
+                                cv.circle(warped, new cv.Point(baseX + (optLetters.indexOf(keys[i]) * gapX), baseY), r-3, new cv.Scalar(0, 255, 0, 255), -1); // จุดเขียวทึบเฉลย
                             }
                         }
                     } else {
-                        // Empty answer mark
-                        cv.circle(warped, new cv.Point(baseX, baseY), r+2, new cv.Scalar(255, 255, 0, 255), 2); // Yellow for empty
-                        if (keys[i]) {
-                            cv.circle(warped, new cv.Point(baseX + (optLetters.indexOf(keys[i]) * gapX), baseY), r-2, new cv.Scalar(0, 255, 0, 255), 2);
-                        }
+                        // ไม่ได้ฝน วาดกรอบสีฟ้าอ่อนให้รู้ว่าตารางทาบตรงไหม
+                        cv.circle(warped, new cv.Point(baseX, baseY), r, new cv.Scalar(0, 200, 255, 255), 2); 
                     }
                 }
                 
-                score = Math.round(score * 100) / 100; // Round to 2 decimal places max
+                score = Math.round(score * 100) / 100;
                 
-                // Show warped result to user
+                // Show warped result to user 
                 cv.imshow('canvas-output', warped);
 
                 const scorePayload = { ExamID: appState.currentExam.ExamID, StudentID: 'STD' + Math.floor(Math.random() * 9999), TotalScore: score };
@@ -935,18 +947,18 @@
                     let idx = appState.allExams.findIndex(e => e.ExamID === appState.currentExam.ExamID); if(idx >= 0) appState.allExams[idx].Status = 'Graded';
                     updateLocalExams();
                     
-                    // Show Bottom Panel Result and keep image in background
                     document.getElementById('res-student-id').innerText = scorePayload.StudentID;
                     document.getElementById('res-score').innerText = score;
                     document.getElementById('res-full').innerText = maxScore;
                     
-                    document.getElementById('scanner-controls').classList.add('translate-y-full'); // Hide controls
-                    document.getElementById('scan-result-panel').classList.remove('translate-y-full'); // Show panel
+                    // Show Panel and Push Canvas Up
+                    document.getElementById('scan-result-panel').classList.remove('translate-y-full');
+                    document.getElementById('scanner-controls').classList.add('translate-y-full'); // ซ่อนปุ่มกล้อง
                     
-                    // Adjust canvas view so it sits above the bottom panel
-                    const canvasOut = document.getElementById('canvas-output');
-                    canvasOut.style.height = 'calc(100% - 250px)'; // Make room for panel
-                    canvasOut.style.objectPosition = 'top center';
+                    // จัดตำแหน่งแคนวาสเพื่อให้อยู่ในพื้นที่ที่เหลือ ไม่โดน Panel บัง
+                    const canvas = document.getElementById('canvas-output');
+                    canvas.style.height = 'calc(100% - 250px)'; // เว้นระยะให้ Bottom sheet
+                    canvas.style.objectPosition = 'top center';
                 }
                 
                 dst.delete(); contours.delete(); hierarchy.delete(); docCnt.delete(); srcTri.delete(); dstTri.delete(); M.delete();
