@@ -33,6 +33,7 @@
         #dynamic-bg {
             position: fixed; inset: 0; background-size: cover; background-position: center;
             background-attachment: fixed; filter: blur(3px); opacity: 0.6; z-index: -2; pointer-events: none;
+            transition: background-image 0.5s ease;
         }
 
         .view-section { display: none !important; animation: fadeIn 0.3s ease-out; }
@@ -43,9 +44,10 @@
         .loader-spin { animation: spin 1s linear infinite; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
 
-        /* Mobile Scrollbar hiding */
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
         @media print {
             body, html { background: #fff !important; margin: 0 !important; padding: 0 !important; width: 100% !important; height: 100% !important; }
@@ -62,12 +64,11 @@
 <div id="dynamic-bg"></div>
 <div id="print-area"></div>
 
-<!-- HEADER (Added ID for hiding during scanner) -->
+<!-- HEADER -->
 <header id="main-header" class="bg-white/95 backdrop-blur-md border-b border-emerald-100 w-full flex-shrink-0 z-30 shadow-sm relative overflow-hidden transition-all duration-300">
     <div id="dynamic-nav-bg" class="absolute inset-0 bg-cover bg-center z-[-1] pointer-events-none opacity-40" style="filter: blur(4px);"></div>
 
     <div class="flex flex-col items-center justify-center pt-5 pb-3 px-4 relative z-10 text-center">
-        <!-- Logo & Title on same line -->
         <div class="flex flex-row items-center justify-center gap-3 mb-2">
             <div class="w-10 h-10 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-xl flex items-center justify-center shadow-lg transform hover:scale-105 transition-transform">
                 <i class="ph-fill ph-check-square-offset text-2xl text-white"></i>
@@ -81,7 +82,7 @@
         </div>
     </div>
     
-    <nav class="relative z-10 flex items-center justify-start sm:justify-center gap-2 py-3 px-4 bg-slate-50/90 border-t border-slate-100 overflow-x-auto whitespace-nowrap no-scrollbar snap-x">
+    <nav class="relative z-10 flex items-center justify-start sm:justify-center gap-2 py-3 px-4 bg-slate-50/90 border-t border-slate-100 overflow-x-auto whitespace-nowrap snap-x">
         <button onclick="navigate('dashboard')" id="nav-dashboard" class="nav-btn active shrink-0 snap-center flex items-center px-4 py-2 rounded-xl text-primary font-medium bg-emerald-100/50 shadow-sm border border-emerald-200 transition-colors">
             <i class="ph-fill ph-squares-four text-lg mr-2"></i><span class="text-sm">แดชบอร์ด</span>
         </button>
@@ -94,9 +95,10 @@
     </nav>
 </header>
 
-<main class="flex-1 overflow-y-auto relative w-full h-full pb-10">
+<main class="flex-1 overflow-y-auto relative w-full h-full pb-20"> <!-- Added pb-20 for mobile scroll clearance -->
     
-    <div id="view-dashboard" class="view-section active p-5 md:p-10 max-w-6xl mx-auto relative z-10 h-full">
+    <!-- View: Dashboard -->
+    <div id="view-dashboard" class="view-section active p-5 md:p-10 max-w-6xl mx-auto relative z-10 h-full min-h-full pb-10">
         <header class="mb-5 text-center md:text-left">
             <h1 class="text-xl md:text-2xl font-bold text-dark drop-shadow-sm bg-white/80 inline-block px-4 py-1.5 rounded-xl backdrop-blur-sm border border-white">แดชบอร์ด</h1>
         </header>
@@ -122,16 +124,17 @@
             </div>
         </div>
 
-        <div class="mt-6 mb-10">
+        <div class="mt-6">
             <div class="inline-flex items-center bg-white/80 px-3 py-1.5 rounded-lg backdrop-blur-sm border border-white shadow-sm mb-4">
                 <i class="ph-fill ph-clock-counter-clockwise text-base mr-2 text-emerald-600"></i>
                 <h2 class="text-base font-bold text-dark">ดำเนินการล่าสุด</h2>
             </div>
-            <div id="recent-exams-list" class="space-y-3"></div>
+            <div id="recent-exams-list" class="space-y-3 pb-8"></div>
         </div>
     </div>
 
-    <div id="view-exam" class="view-section p-5 md:p-10 max-w-6xl mx-auto relative z-10 h-full">
+    <!-- View: Exam -->
+    <div id="view-exam" class="view-section p-5 md:p-10 max-w-6xl mx-auto relative z-10 h-full min-h-full pb-10">
         <header class="flex flex-col sm:flex-row sm:items-center justify-between mb-5 gap-3">
             <h1 class="text-xl md:text-2xl font-bold text-dark drop-shadow-sm bg-white/80 inline-block px-4 py-1.5 rounded-xl backdrop-blur-sm border border-white">จัดการข้อสอบ</h1>
             <button onclick="openModal('modal-create-exam')" class="bg-gradient-to-r from-emerald-500 to-teal-500 text-white px-4 py-2 rounded-xl font-medium shadow-md hover:shadow-lg transition transform hover:-translate-y-0.5 flex items-center justify-center text-sm border border-emerald-400 shrink-0">
@@ -155,10 +158,11 @@
             </select>
         </div>
 
-        <div id="exam-cards-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 pb-10"></div>
+        <div id="exam-cards-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 pb-8"></div>
     </div>
 
-    <div id="view-settings" class="view-section p-5 md:p-10 max-w-3xl mx-auto relative z-10 h-full">
+    <!-- View: Settings -->
+    <div id="view-settings" class="view-section p-5 md:p-10 max-w-3xl mx-auto relative z-10 h-full min-h-full pb-10">
         <header class="mb-5 text-center md:text-left">
             <h1 class="text-xl md:text-2xl font-bold text-dark drop-shadow-sm bg-white/80 inline-block px-4 py-1.5 rounded-xl backdrop-blur-sm border border-white">ตั้งค่าระบบ</h1>
         </header>
@@ -203,11 +207,10 @@
     </div>
 </main>
 
-<!-- SCANNER (Full Screen) -->
-<!-- เพิ่ม view-section เข้าไป เพื่อให้สแกนเนอร์ทำงานร่วมกับ CSS ซ่อน/แสดงหน้าจอได้สมบูรณ์ -->
+<!-- SCANNER (Full Screen Overlay) -->
 <div id="view-scanner" class="view-section fixed inset-0 z-[100] bg-slate-900 flex-col">
-    <!-- Scanner Header (With Working Back Button) -->
-    <div class="bg-slate-950/80 backdrop-blur-md text-white p-3 flex justify-between items-center shadow-lg border-b border-slate-800 shrink-0 absolute top-0 w-full z-40">
+    <!-- Scanner Header -->
+    <div class="bg-slate-950/90 backdrop-blur-md text-white p-3 flex justify-between items-center shadow-lg border-b border-slate-800 shrink-0 absolute top-0 w-full z-40">
         <button onclick="navigate('exam')" class="bg-slate-800/80 hover:bg-slate-700 text-slate-200 px-3 py-2 rounded-lg transition flex items-center shadow border border-slate-700 text-sm font-medium">
             <i class="ph ph-arrow-left text-lg mr-1.5"></i> ย้อนกลับ
         </button>
@@ -218,16 +221,15 @@
     </div>
     
     <!-- Camera Area -->
-    <div class="flex-1 relative bg-black flex justify-center items-center w-full h-full">
-        <video id="video-stream" class="absolute w-full h-full object-cover opacity-60" autoplay playsinline style="display:none;"></video>
-        <!-- Canvas output for warped image and drawing -->
+    <div class="flex-1 relative bg-black flex justify-center items-center w-full h-full mt-12 mb-[100px]">
+        <video id="video-stream" class="absolute w-full h-full object-cover opacity-80" autoplay playsinline style="display:none;"></video>
         <canvas id="canvas-output" class="absolute w-full h-full object-contain z-10 pointer-events-none"></canvas>
         
         <div id="scanner-guideline" class="absolute inset-0 z-20 pointer-events-none flex flex-col justify-center items-center" style="display:none;">
-            <div class="w-4/5 max-w-md aspect-[1/1.4] border-2 border-emerald-500/80 rounded-xl relative shadow-[0_0_30px_rgba(16,185,129,0.3)] bg-emerald-500/5 mt-10">
-                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white/50 text-sm font-medium flex flex-col items-center whitespace-nowrap">
-                    <i class="ph ph-scan text-4xl mb-2"></i>
-                    จัดกระดาษให้อยู่ในกรอบ
+            <div class="w-4/5 max-w-md aspect-[1/1.414] border-2 border-emerald-500/80 rounded-xl relative shadow-[0_0_30px_rgba(16,185,129,0.3)] bg-emerald-500/10">
+                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white/70 text-sm font-medium flex flex-col items-center whitespace-nowrap">
+                    <i class="ph ph-scan text-4xl mb-2 text-emerald-400"></i>
+                    จัดให้เห็นขอบกระดาษทั้ง 4 ด้าน
                 </div>
                 <div class="absolute -top-1 -left-1 w-8 h-8 border-t-4 border-l-4 border-emerald-400 rounded-tl-lg"></div>
                 <div class="absolute -top-1 -right-1 w-8 h-8 border-t-4 border-r-4 border-emerald-400 rounded-tr-lg"></div>
@@ -238,7 +240,7 @@
     </div>
 
     <!-- Scanner Controls -->
-    <div class="bg-slate-950 p-6 flex justify-center items-center shadow-[0_-10px_20px_rgba(0,0,0,0.5)] border-t border-slate-800 shrink-0 min-h-[100px] pb-8 absolute bottom-0 w-full z-40">
+    <div class="bg-slate-950 p-6 flex justify-center items-center shadow-[0_-10px_20px_rgba(0,0,0,0.5)] border-t border-slate-800 shrink-0 min-h-[100px] absolute bottom-0 w-full z-40">
         <button id="btn-capture" onclick="captureAndProcess()" class="bg-emerald-500 text-white w-16 h-16 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(16,185,129,0.6)] hover:scale-105 transition-transform border-4 border-slate-900 ring-2 ring-emerald-500 hidden z-30">
             <i class="ph-fill ph-camera text-2xl"></i>
         </button>
@@ -246,6 +248,25 @@
             <i class="ph-fill ph-image text-lg mr-2"></i> ถ่ายรูป / เลือกภาพ (OMR)
         </button>
         <input type="file" id="fallback-upload" accept="image/*" capture="environment" class="hidden" onchange="handleImageUpload(event)">
+    </div>
+
+    <!-- Scan Result Freeze Overlay -->
+    <div id="scan-result-overlay" class="absolute inset-0 z-50 bg-slate-900/80 backdrop-blur-sm hidden flex-col justify-center items-center p-6">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-sm text-center shadow-2xl">
+            <div class="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-500 mx-auto mb-4 border-4 border-white shadow-lg transform -translate-y-12 mb:-mt-8">
+                <i class="ph-fill ph-check-circle text-5xl"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-slate-800 mb-1 -mt-8">ตรวจสำเร็จ!</h2>
+            <p class="text-slate-500 text-sm mb-5">รหัสนักเรียน: <span id="res-student-id" class="font-bold text-slate-700"></span></p>
+            <div class="bg-slate-50 rounded-xl p-4 mb-6 border border-slate-100">
+                <p class="text-sm font-medium text-slate-500 mb-1">คะแนนที่ได้</p>
+                <p class="text-5xl font-black text-emerald-600"><span id="res-score"></span><span class="text-xl text-slate-400 font-medium">/<span id="res-full"></span></span></p>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="navigate('exam')" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 py-3 rounded-xl font-bold text-sm transition">ปิดออก</button>
+                <button onclick="resumeScanner()" class="flex-[2] bg-emerald-500 hover:bg-emerald-600 text-white py-3 rounded-xl font-bold text-sm shadow-md transition">ตรวจแผ่นต่อไป</button>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -336,7 +357,7 @@
         <div class="p-5 overflow-y-auto flex-1">
             <div class="flex gap-2 mb-4">
                 <input type="text" id="inp-quick-key" class="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm uppercase outline-none focus:border-primary" placeholder="วางเฉลยติดกัน (A-E) เช่น ABC...">
-                <button onclick="applyQuickKey()" class="bg-slate-800 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-700 transition">วางด่วน</button>
+                <button onclick="applyQuickKey()" class="bg-slate-800 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-700 transition whitespace-nowrap">วางด่วน</button>
             </div>
             <div id="key-inputs-container" class="grid grid-cols-3 sm:grid-cols-4 gap-2"></div>
         </div>
@@ -374,9 +395,16 @@
 </div>
 
 <script>
+    // --- STREAMING_CHUNK:Configuration & API Endpoint ---
     const VERCEL_GAS_API_URL = "https://script.google.com/macros/s/AKfycbwO15hYkUPivcBS1Iz0ddwU8wWx_c0kMda9kvoDtoH8ncdS70KqSfs4HjdchY7SiUBU/exec";
-    let appState = { allExams: [], exams: [], currentExam: null, cvReady: false, cameraStream: null, settings: { term: '1', year: '2567', examType: 'กลางภาค', adminPassword: 'admin123', bgUrl: '', headerBgUrl: '' } };
 
+    // --- STREAMING_CHUNK:Initializing State ---
+    let appState = { 
+        allExams: [], exams: [], currentExam: null, cvReady: false, cameraStream: null, 
+        settings: { term: '1', year: '2567', examType: 'กลางภาค', adminPassword: 'admin123', bgUrl: '', headerBgUrl: '' } 
+    };
+
+    // --- STREAMING_CHUNK:API Wrapper ---
     async function runGasFunc(funcName, ...args) {
         return new Promise((resolve, reject) => {
             if (typeof google !== 'undefined' && google.script && google.script.run) {
@@ -404,17 +432,19 @@
         if (funcName === 'saveStudentScore') return { success: true, scoreID: 'SCR' + Date.now() }; return null;
     }
 
+    // --- STREAMING_CHUNK:UI Helpers ---
     const showLoader = (text) => { document.getElementById('loader-text').innerText = text; document.getElementById('global-loader').style.display = 'flex'; }
     const hideLoader = () => document.getElementById('global-loader').style.display = 'none';
     const openModal = (id) => { document.getElementById(id).classList.remove('hidden'); document.getElementById(id).classList.add('flex'); }
     const closeModal = (id) => { document.getElementById(id).classList.add('hidden'); document.getElementById(id).classList.remove('flex'); }
+    
     function showAlert(title, msg, type = 'success') {
         const box = document.getElementById('alert-box'); document.getElementById('alert-title').innerText = title; document.getElementById('alert-msg').innerText = msg;
         document.getElementById('alert-icon').className = type === 'success' ? 'ph-fill ph-check-circle text-xl mr-3 text-emerald-400' : 'ph-fill ph-warning-circle text-xl mr-3 text-red-400';
         box.classList.remove('opacity-0', '-translate-y-10'); setTimeout(() => box.classList.add('opacity-0', '-translate-y-10'), 4000);
     }
 
-    // --- STREAMING_CHUNK:Navigation ---
+    // --- STREAMING_CHUNK:Navigation and Auth ---
     function verifyAdmin() {
         const pwd = String(document.getElementById('inp-admin-password').value).trim();
         const correctPwd = String(appState.settings.adminPassword || 'admin123').trim();
@@ -425,10 +455,8 @@
     function navigate(viewId, skipAuth = false) {
         if(viewId === 'settings' && !skipAuth) { openModal('modal-admin-auth'); return; }
         
-        // บังคับเคลียร์ class active จากทุกหน้า รวมถึงหน้าสแกนกล้อง
         document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
         document.getElementById('view-scanner').classList.remove('active');
-        
         document.querySelectorAll('.nav-btn').forEach(el => { el.classList.remove('bg-emerald-100/50', 'text-primary'); el.classList.add('text-slate-600'); });
         
         if (document.getElementById(`view-${viewId}`)) document.getElementById(`view-${viewId}`).classList.add('active');
@@ -450,15 +478,15 @@
         }
     }
 
+    // --- STREAMING_CHUNK:Init App and Themes ---
     function applyTheme() {
         document.getElementById('ctx-term').innerText = appState.settings.term; document.getElementById('ctx-year').innerText = appState.settings.year; document.getElementById('ctx-type').innerText = appState.settings.examType;
         document.getElementById('dynamic-bg').style.backgroundImage = appState.settings.bgUrl ? `url('${appState.settings.bgUrl}')` : 'none';
         document.getElementById('dynamic-nav-bg').style.backgroundImage = appState.settings.headerBgUrl ? `url('${appState.settings.headerBgUrl}')` : 'none';
     }
 
-    // --- STREAMING_CHUNK:App Initialization ---
     async function initApp() {
-        showLoader('เชื่อมต่อฐานข้อมูล STW Grader...');
+        showLoader('เชื่อมต่อฐานข้อมูล...');
         try {
             await runGasFunc('setupDatabase');
             const set = await runGasFunc('getSettings'); if (set && Object.keys(set).length > 0) appState.settings = { ...appState.settings, ...set };
@@ -479,7 +507,7 @@
         try { const res = await runGasFunc('saveSettings', appState.settings); if(res.success) { applyTheme(); showAlert('สำเร็จ', 'บันทึกการตั้งค่าเรียบร้อยแล้ว'); updateLocalExams(); navigate('dashboard'); } else showAlert('ข้อผิดพลาด', res.message, 'error'); } catch(e) { showAlert('ข้อผิดพลาด', 'บันทึกไม่สำเร็จ', 'error'); } finally { hideLoader(); }
     }
 
-    // --- STREAMING_CHUNK:UI Rendering ---
+    // --- STREAMING_CHUNK:Rendering Dashboard and Exams ---
     function renderDashboard() {
         document.getElementById('stat-exams').innerText = appState.exams.length; document.getElementById('stat-scanned').innerText = appState.exams.filter(e => e.Status === 'Graded').length;
         const container = document.getElementById('recent-exams-list'); if (!container) return; container.innerHTML = '';
@@ -535,7 +563,7 @@
         });
     }
 
-    // --- STREAMING_CHUNK:Exam Management Logic ---
+    // --- STREAMING_CHUNK:Exam Creation and Answers ---
     async function handleCreateExam(e) {
         e.preventDefault(); const examID = 'EXM' + Date.now().toString().slice(-6);
         const newExam = { ExamID: examID, SubjectCode: document.getElementById('inp-code').value, SubjectName: document.getElementById('inp-name').value, SubjectGroup: document.getElementById('inp-group').value, ClassLevel: document.getElementById('inp-class').value, TotalQs: parseInt(document.getElementById('inp-total-qs').value), OptionsCount: parseInt(document.getElementById('inp-options').value), FullScore: parseFloat(document.getElementById('inp-full-score').value), Year: appState.settings.year, Term: appState.settings.term, ExamType: appState.settings.examType, Status: 'Active' };
@@ -571,10 +599,11 @@
     // --- STREAMING_CHUNK:Print Engine ---
     function printPaper(examID) {
         const exam = appState.exams.find(e => e.ExamID === examID); if (!exam) return;
-        showAlert('กำลังเปิดหน้าต่างพิมพ์...', 'หากหน้าพิมพ์ไม่ขึ้น ให้ลองนำลิงก์ไปเปิดในแท็บเบราว์เซอร์จริง');
+        showAlert('กำลังเปิดหน้าต่างพิมพ์...', 'กรุณาปริ้นบนกระดาษ A4 เสมอ');
         const totalQs = exam.TotalQs; const options = exam.OptionsCount; const letters = ['A','B','C','D','E'].slice(0, options);
         
-        let gridCols = (totalQs <= 20) ? 2 : (totalQs <= 40) ? 2 : 3;
+        let gridCols = 2;
+        if (totalQs <= 20) gridCols = 2; else if (totalQs <= 30) gridCols = 2; else if (totalQs <= 40) gridCols = 2; else if (totalQs <= 60) gridCols = 3;
         let qsPerCol = Math.ceil(totalQs / gridCols);
         
         let columnsHtml = ``; let colWidth = Math.floor(100 / gridCols) - 1; 
@@ -660,6 +689,22 @@
         if (appState.cameraStream) { appState.cameraStream.getTracks().forEach(track => track.stop()); appState.cameraStream = null; }
         const video = document.getElementById('video-stream'); if(video) { video.srcObject = null; video.style.display = 'none'; }
         document.getElementById('canvas-output').style.display = 'none';
+        document.getElementById('scan-result-overlay').classList.add('hidden');
+        document.getElementById('scan-result-overlay').classList.remove('flex');
+    }
+
+    function resumeScanner() {
+        document.getElementById('scan-result-overlay').classList.add('hidden');
+        document.getElementById('scan-result-overlay').classList.remove('flex');
+        
+        if (appState.cameraStream) {
+            document.getElementById('video-stream').style.display = 'block';
+            document.getElementById('canvas-output').style.display = 'none';
+            document.getElementById('scanner-guideline').style.display = 'flex';
+        } else {
+            // In fallback mode, just hide canvas and wait for next upload
+            document.getElementById('canvas-output').style.display = 'none';
+        }
     }
 
     function handleImageUpload(e) {
@@ -686,7 +731,7 @@
         showLoader('กำลังวิเคราะห์กระดาษคำตอบ...'); processScanLogic();
     }
 
-    // --- STREAMING_CHUNK:OpenCV Logic ---
+    // --- STREAMING_CHUNK:OpenCV Logic with Precision Grid Mapping ---
     function processScanLogic() {
         setTimeout(async () => {
             let src = null; let warped = null; let thresh = null;
@@ -704,6 +749,7 @@
                 for (let i = 0; i < contours.size(); ++i) {
                     let cnt = contours.get(i);
                     let area = cv.contourArea(cnt);
+                    // Filter: Must be large enough to be a paper
                     if (area > (src.cols * src.rows * 0.15)) { 
                         let peri = cv.arcLength(cnt, true); let approx = new cv.Mat();
                         cv.approxPolyDP(cnt, approx, 0.02 * peri, true);
@@ -713,12 +759,13 @@
                 }
 
                 if (!docCnt) {
-                    hideLoader(); showAlert('ไม่พบกระดาษคำตอบ', 'โปรดถ่ายให้เห็นขอบสี่เหลี่ยม หรือวางบนพื้นสีเข้ม', 'error');
+                    hideLoader(); showAlert('ไม่พบกระดาษคำตอบ', 'โปรดจัดกระดาษให้เห็นขอบสี่เหลี่ยม หรือวางบนพื้นสีเข้มตัดกับกระดาษ', 'error');
                     if(src) src.delete(); dst.delete(); contours.delete(); hierarchy.delete();
-                    if(appState.cameraStream) { document.getElementById('video-stream').style.display='block'; document.getElementById('canvas-output').style.display='none'; document.getElementById('scanner-guideline').style.display='flex'; }
+                    if(appState.cameraStream) { resumeScanner(); }
                     return;
                 }
 
+                // Warping process
                 let pts = []; for (let i = 0; i < 4; i++) { pts.push({ x: docCnt.data32S[i * 2], y: docCnt.data32S[i * 2 + 1] }); }
                 pts.sort((a, b) => a.y - b.y);
                 let top = pts.slice(0, 2).sort((a, b) => a.x - b.x); let bottom = pts.slice(2, 4).sort((a, b) => a.x - b.x);
@@ -726,6 +773,7 @@
 
                 let srcTri = cv.matFromArray(4, 1, cv.CV_32FC2, [ orderedPts[0].x, orderedPts[0].y, orderedPts[1].x, orderedPts[1].y, orderedPts[2].x, orderedPts[2].y, orderedPts[3].x, orderedPts[3].y ]);
                 
+                // Fixed Warp Size for precision mapping (Half of A4 300DPI)
                 let w = 1240; let h = 1754; 
                 let dstTri = cv.matFromArray(4, 1, cv.CV_32FC2, [ 0, 0, w, 0, w, h, 0, h ]);
 
@@ -737,25 +785,25 @@
                 let maxScore = appState.currentExam.FullScore;
                 let optionsCount = appState.currentExam.OptionsCount;
 
-                // อัปเดต Grid Mapping ครบถ้วน 20, 30, 40, 60
+                // --- PRECISION GRID MAPPING (Calibrated for 1240x1754 Canvas) ---
                 let qConfig = {};
                 if (qCount <= 20) {
-                    qConfig = { rows: 10, r: 30, gapX: 205, gapY: 92, startY: 875, colXs: [530, 1590] };
+                    qConfig = { rows: 10, r: 16, gapX: 39, gapY: 41, startY: 440, colXs: [200, 710] };
                 } else if (qCount <= 30) {
-                    qConfig = { rows: 15, r: 30, gapX: 205, gapY: 82, startY: 875, colXs: [530, 1590] };
+                    qConfig = { rows: 15, r: 16, gapX: 39, gapY: 41, startY: 440, colXs: [200, 710] };
                 } else if (qCount <= 40) {
-                    qConfig = { rows: 20, r: 30, gapX: 205, gapY: 73, startY: 875, colXs: [530, 1590] };
+                    qConfig = { rows: 20, r: 16, gapX: 39, gapY: 41, startY: 440, colXs: [200, 710] };
                 } else { // 60
-                    qConfig = { rows: 20, r: 30, gapX: 135, gapY: 73, startY: 875, colXs: [420, 1110, 1810] };
+                    qConfig = { rows: 20, r: 16, gapX: 39, gapY: 41, startY: 440, colXs: [180, 520, 860] };
                 }
 
-                const SCALE = 0.5;
-                let r = Math.round(qConfig.r * SCALE);
-                let startY = Math.round(qConfig.startY * SCALE);
-                let gapX = Math.round(qConfig.gapX * SCALE);
-                let gapY = Math.round(qConfig.gapY * SCALE);
-                let colXs = qConfig.colXs.map(x => Math.round(x * SCALE));
+                let r = qConfig.r;
+                let startY = qConfig.startY;
+                let gapX = qConfig.gapX;
+                let gapY = qConfig.gapY;
+                let colXs = qConfig.colXs;
 
+                // Image Binarization for Bubble Reading
                 thresh = new cv.Mat();
                 cv.cvtColor(warped, thresh, cv.COLOR_RGBA2GRAY, 0);
                 cv.threshold(thresh, thresh, 0, 255, cv.THRESH_BINARY_INV | cv.THRESH_OTSU);
@@ -785,6 +833,7 @@
                         let y = Math.max(0, cy - r);
                         let rect = new cv.Rect(x, y, r * 2, r * 2);
                         
+                        // Prevent out of bounds
                         if(x + r*2 > w) rect.width = w - x;
                         if(y + r*2 > h) rect.height = h - y;
 
@@ -795,46 +844,49 @@
                         if (pixelCount > maxPixels) { maxPixels = pixelCount; bestAns = optLetters[j]; }
                     }
 
+                    // Must have at least 25% fill to be considered marked
                     let minFillArea = (r * 2 * r * 2) * 0.25;
                     
                     if (maxPixels > minFillArea) {
                         if (bestAns === keys[i]) {
                             score += scorePerQ;
-                            cv.circle(warped, new cv.Point(baseX + (optLetters.indexOf(bestAns) * gapX), baseY), r+4, new cv.Scalar(0, 255, 0, 255), 3);
+                            cv.circle(warped, new cv.Point(baseX + (optLetters.indexOf(bestAns) * gapX), baseY), r+4, new cv.Scalar(0, 255, 0, 255), 3); // Green for correct
                         } else {
-                            cv.circle(warped, new cv.Point(baseX + (optLetters.indexOf(bestAns) * gapX), baseY), r+4, new cv.Scalar(255, 0, 0, 255), 3);
+                            cv.circle(warped, new cv.Point(baseX + (optLetters.indexOf(bestAns) * gapX), baseY), r+4, new cv.Scalar(255, 0, 0, 255), 3); // Red for wrong
                         }
                     } else {
-                        cv.circle(warped, new cv.Point(baseX, baseY), r+4, new cv.Scalar(255, 255, 0, 255), 2);
+                        // Empty answer mark
+                        cv.circle(warped, new cv.Point(baseX, baseY), r+2, new cv.Scalar(255, 255, 0, 255), 2); // Yellow for empty
                     }
                 }
                 
                 score = Math.round(score);
+                
+                // Show warped result to user
                 cv.imshow('canvas-output', warped);
 
                 const scorePayload = { ExamID: appState.currentExam.ExamID, StudentID: 'STD' + Math.floor(Math.random() * 9999), TotalScore: score };
                 const res = await runGasFunc('saveStudentScore', scorePayload);
                 
                 hideLoader();
+                
                 if (res.success) {
-                    showAlert('ตรวจสำเร็จ (OMR)', `ได้คะแนน: ${score}/${maxScore} คะแนน`);
                     appState.currentExam.Status = 'Graded'; 
                     let idx = appState.allExams.findIndex(e => e.ExamID === appState.currentExam.ExamID); if(idx >= 0) appState.allExams[idx].Status = 'Graded';
                     updateLocalExams();
                     
-                    setTimeout(() => {
-                        if(appState.cameraStream) {
-                            document.getElementById('video-stream').style.display = 'block';
-                            document.getElementById('canvas-output').style.display = 'none';
-                            document.getElementById('scanner-guideline').style.display = 'flex';
-                        }
-                    }, 3000);
+                    // Show Freeze Result Overlay instead of rapid restart
+                    document.getElementById('res-student-id').innerText = scorePayload.StudentID;
+                    document.getElementById('res-score').innerText = score;
+                    document.getElementById('res-full').innerText = maxScore;
+                    document.getElementById('scan-result-overlay').classList.remove('hidden');
+                    document.getElementById('scan-result-overlay').classList.add('flex');
                 }
                 
                 dst.delete(); contours.delete(); hierarchy.delete(); docCnt.delete(); srcTri.delete(); dstTri.delete(); M.delete();
             } catch(e) { 
-                console.error(e); hideLoader(); showAlert('ตรวจไม่สำเร็จ', 'ไม่สามารถอ่านจุด OMR ได้ ลองถ่ายใหม่ให้เห็นขอบกระดาษชัดๆ', 'error');
-                if(appState.cameraStream) { document.getElementById('video-stream').style.display='block'; document.getElementById('canvas-output').style.display='none'; document.getElementById('scanner-guideline').style.display='flex'; }
+                console.error(e); hideLoader(); showAlert('ตรวจไม่สำเร็จ', 'ไม่สามารถอ่านกระดาษได้ โปรดจัดกระดาษให้อยู่ในกรอบ', 'error');
+                if(appState.cameraStream) resumeScanner();
             } finally {
                 if(src) src.delete(); if(warped) warped.delete(); if(thresh) thresh.delete();
             }
