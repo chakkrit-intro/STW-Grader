@@ -9,6 +9,7 @@
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script async src="https://docs.opencv.org/4.7.0/opencv.js" onload="onOpenCvReady();" type="text/javascript"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
 
     <script>
         tailwind.config = {
@@ -44,7 +45,6 @@
         .loader-spin { animation: spin 1s linear infinite; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
 
-        /* ปรับซ่อน Scrollbar สำหรับเมนูแนวนอน แต่ยังคงเลื่อน(Swipe)ได้ */
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
@@ -86,7 +86,6 @@
         </div>
     </div>
     
-    <!-- แก้ไข justify-center เพื่อให้แถบเมนูอยู่ตรงกลางในจอ PC เสมอ และซ่อน Scrollbar -->
     <nav class="relative z-10 flex items-center justify-start md:justify-center w-full gap-3 py-3 px-4 bg-slate-50/90 border-t border-slate-100 overflow-x-auto whitespace-nowrap snap-x hide-scrollbar" style="scroll-behavior: smooth; -webkit-overflow-scrolling: touch;">
         <button onclick="navigate('dashboard')" id="nav-dashboard" class="nav-btn active shrink-0 snap-center flex items-center px-4 py-2 rounded-xl font-medium transition-colors bg-emerald-100/50 text-primary border border-emerald-200 shadow-sm">
             <i class="ph-fill ph-squares-four text-lg mr-2"></i><span class="text-base">แดชบอร์ด</span>
@@ -100,10 +99,8 @@
     </nav>
 </header>
 
-<!-- เพิ่ม pb-32 ที่ view-section เพื่อกันไม่ให้เนื้อหาถูกบังในมือถือเมื่อเลื่อนลงสุด และนำ h-full ออกจาก main เพื่อให้เลื่อนได้อิสระ -->
 <main class="flex-1 overflow-y-auto relative w-full bg-transparent">
     
-    <!-- View: Dashboard -->
     <div id="view-dashboard" class="view-section active p-5 md:p-10 max-w-6xl mx-auto relative z-10 pb-32 min-h-full">
         <header class="mb-5 text-center md:text-left">
             <h1 class="text-2xl md:text-3xl font-bold text-dark drop-shadow-sm bg-white/80 inline-block px-4 py-1.5 rounded-xl backdrop-blur-sm border border-white">แดชบอร์ด</h1>
@@ -139,7 +136,6 @@
         </div>
     </div>
 
-    <!-- View: Exam -->
     <div id="view-exam" class="view-section p-5 md:p-10 max-w-6xl mx-auto relative z-10 pb-32 min-h-full">
         <header class="flex flex-col sm:flex-row sm:items-center justify-between mb-5 gap-3">
             <h1 class="text-2xl md:text-3xl font-bold text-dark drop-shadow-sm bg-white/80 inline-block px-4 py-1.5 rounded-xl backdrop-blur-sm border border-white">จัดการข้อสอบ</h1>
@@ -167,7 +163,6 @@
         <div id="exam-cards-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pb-8"></div>
     </div>
 
-    <!-- View: Settings -->
     <div id="view-settings" class="view-section p-5 md:p-10 max-w-3xl mx-auto relative z-10 pb-32 min-h-full">
         <header class="mb-5 text-center md:text-left">
             <h1 class="text-2xl md:text-3xl font-bold text-dark drop-shadow-sm bg-white/80 inline-block px-4 py-1.5 rounded-xl backdrop-blur-sm border border-white">ตั้งค่าระบบ</h1>
@@ -229,7 +224,6 @@
     <!-- Camera Area -->
     <div class="flex-1 relative bg-black flex justify-center items-center w-full h-full mt-12 mb-[100px] overflow-hidden">
         <video id="video-stream" class="absolute w-full h-full object-cover opacity-80" autoplay playsinline style="display:none;"></video>
-        <!-- Canvas output set to full width/height but uses object-contain to scale properly -->
         <canvas id="canvas-output" class="absolute w-full h-full object-contain z-10 transition-all duration-300" style="object-position: center;"></canvas>
         
         <div id="scanner-guideline" class="absolute inset-0 z-20 pointer-events-none flex flex-col justify-center items-center" style="display:none;">
@@ -238,7 +232,6 @@
                     <i class="ph ph-scan text-4xl mb-2 text-emerald-400 animate-pulse"></i>
                     จัดให้เห็นขอบกระดาษทั้ง 4 ด้าน
                 </div>
-                <!-- Corner Markers -->
                 <div class="absolute -top-1 -left-1 w-8 h-8 border-t-4 border-l-4 border-emerald-400 rounded-tl-lg"></div>
                 <div class="absolute -top-1 -right-1 w-8 h-8 border-t-4 border-r-4 border-emerald-400 rounded-tr-lg"></div>
                 <div class="absolute -bottom-1 -left-1 w-8 h-8 border-b-4 border-l-4 border-emerald-400 rounded-bl-lg"></div>
@@ -258,7 +251,7 @@
         <input type="file" id="fallback-upload" accept="image/*" capture="environment" class="hidden" onchange="handleImageUpload(event)">
     </div>
 
-    <!-- Scan Result Panel (Bottom Sheet) -->
+    <!-- Scan Result Panel -->
     <div id="scan-result-panel" class="absolute bottom-0 left-0 right-0 z-50 bg-white shadow-[0_-15px_40px_rgba(0,0,0,0.3)] rounded-t-3xl transform translate-y-full transition-transform duration-300 flex flex-col p-6 max-h-[50vh]">
         <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-4"></div>
         <div class="flex-1 overflow-y-auto pb-4">
@@ -417,16 +410,16 @@
 </div>
 
 <script>
-    // --- STREAMING_CHUNK:Configuration & API Endpoint ---
+    // --- Configuration & API Endpoint ---
     const VERCEL_GAS_API_URL = "https://script.google.com/macros/s/AKfycbwO15hYkUPivcBS1Iz0ddwU8wWx_c0kMda9kvoDtoH8ncdS70KqSfs4HjdchY7SiUBU/exec";
 
-    // --- STREAMING_CHUNK:Initializing State ---
+    // --- Initializing State ---
     let appState = { 
         allExams: [], exams: [], currentExam: null, cvReady: false, cameraStream: null, 
         settings: { term: '1', year: '2567', examType: 'กลางภาค', adminPassword: 'admin123', bgUrl: '', headerBgUrl: '' } 
     };
 
-    // --- STREAMING_CHUNK:API Wrapper ---
+    // --- API Wrapper ---
     async function runGasFunc(funcName, ...args) {
         return new Promise((resolve, reject) => {
             if (typeof google !== 'undefined' && google.script && google.script.run) {
@@ -451,10 +444,30 @@
         if (funcName === 'saveExam') { let ex = args[0]; let idx = ls.exams.findIndex(e => e.ExamID === ex.ExamID); if (idx >= 0) ls.exams[idx] = ex; else ls.exams.push(ex); localStorage.setItem('stw_grader_mock', JSON.stringify(ls)); return { success: true, examID: ex.ExamID }; }
         if (funcName === 'saveAnswerKey') { let idx = ls.exams.findIndex(e => e.ExamID === args[0].ExamID); if (idx >= 0) { ls.exams[idx].KeyData_JSON = args[0].KeyData; localStorage.setItem('stw_grader_mock', JSON.stringify(ls)); } return { success: true }; }
         if (funcName === 'getAnswerKey') { let ex = ls.exams.find(e => e.ExamID === args[0]); return ex && ex.KeyData_JSON ? { ExamID: args[0], KeyData_JSON: ex.KeyData_JSON } : null; }
-        if (funcName === 'saveStudentScore') return { success: true, scoreID: 'SCR' + Date.now() }; return null;
+        if (funcName === 'saveStudentScore') {
+            // Mock Saving Scores to local storage
+            let scores = JSON.parse(localStorage.getItem('stw_scores') || '[]');
+            let payload = args[0];
+            payload.scoreID = 'SCR' + Date.now();
+            payload.Timestamp = new Date().toISOString();
+            scores.push(payload);
+            localStorage.setItem('stw_scores', JSON.stringify(scores));
+            
+            // Mark Exam as graded
+            let idx = ls.exams.findIndex(e => e.ExamID === payload.ExamID);
+            if (idx >= 0) { ls.exams[idx].Status = 'Graded'; localStorage.setItem('stw_grader_mock', JSON.stringify(ls)); }
+
+            return { success: true, scoreID: payload.scoreID }; 
+        }
+        if (funcName === 'getExamScores') {
+            // Mock getting scores
+            let scores = JSON.parse(localStorage.getItem('stw_scores') || '[]');
+            return scores.filter(s => s.ExamID === args[0]);
+        }
+        return null;
     }
 
-    // --- STREAMING_CHUNK:UI Helpers ---
+    // --- UI Helpers ---
     const showLoader = (text) => { document.getElementById('loader-text').innerText = text; document.getElementById('global-loader').style.display = 'flex'; }
     const hideLoader = () => document.getElementById('global-loader').style.display = 'none';
     const openModal = (id) => { document.getElementById(id).classList.remove('hidden'); document.getElementById(id).classList.add('flex'); }
@@ -466,7 +479,7 @@
         box.classList.remove('opacity-0', '-translate-y-10'); setTimeout(() => box.classList.add('opacity-0', '-translate-y-10'), 4000);
     }
 
-    // --- STREAMING_CHUNK:Navigation and Auth ---
+    // --- Navigation and Auth ---
     function verifyAdmin() {
         const pwd = String(document.getElementById('inp-admin-password').value).trim();
         const correctPwd = String(appState.settings.adminPassword || 'admin123').trim();
@@ -480,7 +493,6 @@
         document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
         document.getElementById('view-scanner').classList.remove('active');
         
-        // Reset nav buttons styles (make them all transparent background / slate text)
         document.querySelectorAll('.nav-btn').forEach(el => { 
             el.classList.remove('bg-emerald-100/50', 'text-primary', 'border-emerald-200', 'shadow-sm'); 
             el.classList.add('text-slate-600', 'border-transparent'); 
@@ -488,7 +500,6 @@
         
         if (document.getElementById(`view-${viewId}`)) document.getElementById(`view-${viewId}`).classList.add('active');
         
-        // Add active style to selected button (green background, green border, green text)
         if (document.getElementById(`nav-${viewId}`)) { 
             let activeBtn = document.getElementById(`nav-${viewId}`);
             activeBtn.classList.remove('text-slate-600', 'border-transparent'); 
@@ -511,7 +522,7 @@
         }
     }
 
-    // --- STREAMING_CHUNK:Init App and Themes ---
+    // --- Init App and Themes ---
     function applyTheme() {
         document.getElementById('ctx-term').innerText = appState.settings.term; document.getElementById('ctx-year').innerText = appState.settings.year; document.getElementById('ctx-type').innerText = appState.settings.examType;
         document.getElementById('dynamic-bg').style.backgroundImage = appState.settings.bgUrl ? `url('${appState.settings.bgUrl}')` : 'none';
@@ -540,7 +551,7 @@
         try { const res = await runGasFunc('saveSettings', appState.settings); if(res.success) { applyTheme(); showAlert('สำเร็จ', 'บันทึกการตั้งค่าเรียบร้อยแล้ว'); updateLocalExams(); navigate('dashboard'); } else showAlert('ข้อผิดพลาด', res.message, 'error'); } catch(e) { showAlert('ข้อผิดพลาด', 'บันทึกไม่สำเร็จ', 'error'); } finally { hideLoader(); }
     }
 
-    // --- STREAMING_CHUNK:Rendering Dashboard and Exams ---
+    // --- Rendering Dashboard and Exams ---
     function renderDashboard() {
         document.getElementById('stat-exams').innerText = appState.exams.length; document.getElementById('stat-scanned').innerText = appState.exams.filter(e => e.Status === 'Graded').length;
         const container = document.getElementById('recent-exams-list'); if (!container) return; container.innerHTML = '';
@@ -571,7 +582,6 @@
         
         filtered.forEach(exam => {
             let dispClass = exam.ClassLevel.toString().startsWith('ม.') ? exam.ClassLevel : 'ม.' + exam.ClassLevel;
-            // ปรับขนาดตัวหนังสือในการ์ดให้ใหญ่ขึ้น
             container.innerHTML += `
                 <div class="glass-card p-6 rounded-2xl flex flex-col h-full hover:shadow-xl transition-all transform hover:-translate-y-1 border-t-4 border-t-emerald-500 relative group overflow-hidden">
                     <div class="absolute -right-6 -top-6 w-24 h-24 bg-emerald-50 rounded-full z-0 group-hover:scale-150 transition-transform duration-700 opacity-50 pointer-events-none"></div>
@@ -588,16 +598,73 @@
                         <div class="border-l border-slate-200"><span class="text-xs text-slate-400 block mb-0.5">ช้อยส์</span><span class="text-base font-bold text-slate-700"><i class="ph-fill ph-circles-four text-blue-500"></i> ${exam.OptionsCount}</span></div>
                         <div class="border-l border-slate-200"><span class="text-xs text-slate-400 block mb-0.5">คะแนน</span><span class="text-base font-bold text-slate-700"><i class="ph-fill ph-star text-amber-500"></i> ${exam.FullScore}</span></div>
                     </div>
-                    <div class="relative z-10 grid grid-cols-3 gap-3">
-                        <button onclick="setupKey('${exam.ExamID}')" class="flex flex-col items-center justify-center bg-white hover:bg-slate-50 py-3 rounded-xl text-xs font-bold transition shadow-sm border border-slate-200 text-slate-600 hover:text-primary"><i class="ph-fill ph-key text-2xl mb-1 text-slate-400"></i> เฉลย</button>
-                        <button onclick="printPaper('${exam.ExamID}')" class="flex flex-col items-center justify-center bg-white hover:bg-slate-50 py-3 rounded-xl text-xs font-bold transition shadow-sm border border-slate-200 text-slate-600 hover:text-blue-500"><i class="ph-fill ph-printer text-2xl mb-1 text-slate-400"></i> พิมพ์</button>
-                        <button onclick="startScanner('${exam.ExamID}')" class="flex flex-col items-center justify-center bg-gradient-to-br from-emerald-500 to-teal-500 hover:from-emerald-600 text-white py-3 rounded-xl text-xs font-bold transition shadow-md border border-transparent transform hover:scale-[1.02]"><i class="ph-bold ph-scan text-2xl mb-1"></i> ตรวจ</button>
+                    <div class="relative z-10 grid grid-cols-4 gap-2">
+                        <button onclick="setupKey('${exam.ExamID}')" class="flex flex-col items-center justify-center bg-white hover:bg-slate-50 py-3 rounded-xl text-xs font-bold transition shadow-sm border border-slate-200 text-slate-600 hover:text-primary"><i class="ph-fill ph-key text-xl mb-1 text-slate-400"></i> เฉลย</button>
+                        <button onclick="printPaper('${exam.ExamID}')" class="flex flex-col items-center justify-center bg-white hover:bg-slate-50 py-3 rounded-xl text-xs font-bold transition shadow-sm border border-slate-200 text-slate-600 hover:text-blue-500"><i class="ph-fill ph-printer text-xl mb-1 text-slate-400"></i> พิมพ์</button>
+                        <button onclick="exportToExcel('${exam.ExamID}')" class="flex flex-col items-center justify-center bg-white hover:bg-slate-50 py-3 rounded-xl text-xs font-bold transition shadow-sm border border-slate-200 text-slate-600 hover:text-emerald-500"><i class="ph-fill ph-microsoft-excel-logo text-xl mb-1 text-slate-400"></i> Excel</button>
+                        <button onclick="startScanner('${exam.ExamID}')" class="flex flex-col items-center justify-center bg-gradient-to-br from-emerald-500 to-teal-500 hover:from-emerald-600 text-white py-3 rounded-xl text-xs font-bold transition shadow-md border border-transparent transform hover:scale-[1.02]"><i class="ph-bold ph-scan text-xl mb-1"></i> ตรวจ</button>
                     </div>
                 </div>`;
         });
     }
 
-    // --- STREAMING_CHUNK:Exam Creation and Answers ---
+    // --- Export to Excel Feature ---
+    async function exportToExcel(examID) {
+        showLoader('กำลังดาวน์โหลดข้อมูลคะแนน...');
+        try {
+            const exam = appState.exams.find(e => e.ExamID === examID);
+            if (!exam) { hideLoader(); return; }
+            
+            // Get data from backend (scores)
+            const scoresRes = await runGasFunc('getExamScores', examID); 
+            
+            if (!scoresRes || scoresRes.length === 0) {
+                hideLoader();
+                showAlert('ไม่มีข้อมูล', 'ยังไม่มีข้อมูลการตรวจกระดาษคำตอบในวิชานี้', 'error');
+                return;
+            }
+
+            // Map data for Excel export
+            const dataToExport = scoresRes.map((score, index) => {
+                let answerObj = {};
+                if (score.AnswerData) {
+                    try { answerObj = JSON.parse(score.AnswerData); } catch (e) {}
+                }
+                
+                let rowData = {
+                    "ลำดับ": index + 1,
+                    "รหัสนักเรียน": score.StudentID,
+                    "คะแนนรวม": score.TotalScore,
+                };
+                
+                // Add individual answers if available
+                for (let i = 1; i <= exam.TotalQs; i++) {
+                    rowData[`ข้อ ${i}`] = answerObj[i] || '-';
+                }
+                return rowData;
+            });
+
+            // Use SheetJS to generate Excel
+            const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+            const workbook = XLSX.utils.book_new();
+            
+            // Generate filename based on subject details
+            const filename = `ผลคะแนน_${exam.SubjectName}_${exam.SubjectCode}_ม${exam.ClassLevel}.xlsx`;
+            
+            XLSX.utils.book_append_sheet(workbook, worksheet, "คะแนนสอบ");
+            XLSX.writeFile(workbook, filename);
+            
+            showAlert('สำเร็จ', 'ดาวน์โหลดไฟล์ Excel เรียบร้อยแล้ว');
+            
+        } catch (error) {
+            console.error(error);
+            showAlert('ข้อผิดพลาด', 'ไม่สามารถสร้างไฟล์ Excel ได้', 'error');
+        } finally {
+            hideLoader();
+        }
+    }
+
+    // --- Exam Creation and Answers ---
     async function handleCreateExam(e) {
         e.preventDefault(); const examID = 'EXM' + Date.now().toString().slice(-6);
         const newExam = { ExamID: examID, SubjectCode: document.getElementById('inp-code').value, SubjectName: document.getElementById('inp-name').value, SubjectGroup: document.getElementById('inp-group').value, ClassLevel: document.getElementById('inp-class').value, TotalQs: parseInt(document.getElementById('inp-total-qs').value), OptionsCount: parseInt(document.getElementById('inp-options').value), FullScore: parseFloat(document.getElementById('inp-full-score').value), Year: appState.settings.year, Term: appState.settings.term, ExamType: appState.settings.examType, Status: 'Active' };
@@ -629,7 +696,6 @@
         showLoader('กำลังบันทึก...');
         try { const res = await runGasFunc('saveAnswerKey', { ExamID: appState.currentExam.ExamID, KeyData: JSON.stringify(keyData) }); if(res.success) { showAlert('สำเร็จ', 'บันทึกเฉลยเรียบร้อย'); closeModal('modal-set-key'); } } catch(e) {} finally { hideLoader(); }
     }
-
     // --- STREAMING_CHUNK:Print Engine ---
     function printPaper(examID) {
         const exam = appState.exams.find(e => e.ExamID === examID); if (!exam) return;
@@ -641,12 +707,19 @@
         let qsPerCol = Math.ceil(totalQs / gridCols);
         
         let columnsHtml = ``; let colWidth = Math.floor(100 / gridCols) - 1; 
+        
+        // หดความกว้างของตัวเลือกในตารางลงเหลือ 20px (ทำให้แกน X ชิดขึ้นสุดๆ แบบเกือบติดกัน)
+        let tdWidth = '20px';
+        
         for (let c = 0; c < gridCols; c++) {
             columnsHtml += `<div style="float: left; width: ${colWidth}%; margin-right: 1%; box-sizing: border-box;">`;
             for (let i = 0; i < qsPerCol; i++) {
                 let currentQ = (c * qsPerCol) + i + 1; if (currentQ > totalQs) break;
-                let bubblesHtml = letters.map(l => `<td style="width: 25px; text-align: center; padding: 2px 0;"><div style="width: 21px; height: 21px; border: 1.5px solid #000; border-radius: 50%; text-align: center; line-height: 19px; font-size: 11px; color: #777; margin: 0 auto; box-sizing: border-box;">${l}</div></td>`).join('');
-                columnsHtml += `<table style="width: 100%; border-collapse: collapse; margin-bottom: 5px; page-break-inside: avoid;"><tr><td style="width: 32px; text-align: right; padding-right: 8px; font-weight: bold; font-size: 14px; color: #000;">${currentQ}.</td>${bubblesHtml}</tr></table>`;
+                // ปรับขนาดวงกลมเป็น 18px ตามที่คุณต้องการ และปรับระยะห่างให้ชิดที่สุด
+                let bubblesHtml = letters.map(l => `<td style="width: ${tdWidth}; text-align: center; padding: 1px 0;"><div style="width: 18px; height: 18px; border: 1.5px solid #000; border-radius: 50%; text-align: center; line-height: 16px; font-size: 10px; color: #777; margin: 0 auto; box-sizing: border-box;">${l}</div></td>`).join('');
+                
+                // ลดระยะ margin-bottom เพื่อให้แต่ละข้อ (แกน Y) ชิดกันมากขึ้น
+                columnsHtml += `<table style="width: auto; border-collapse: collapse; margin-bottom: 3px; page-break-inside: avoid; margin-left: auto; margin-right: auto;"><tr><td style="width: 32px; text-align: right; padding-right: 10px; font-weight: bold; font-size: 13px; color: #000;">${currentQ}.</td>${bubblesHtml}</tr></table>`;
             }
             columnsHtml += `</div>`;
         }
@@ -683,7 +756,7 @@
         window.print();
     }
 
-    // --- STREAMING_CHUNK:OpenCV Initialization and Scanner logic ---
+    // --- OpenCV Initialization and Scanner logic ---
     function onOpenCvReady() { appState.cvReady = true; console.log('OpenCV Ready.'); }
 
     async function startScanner(examID) {
@@ -714,7 +787,6 @@
             document.getElementById('btn-capture').style.display = 'flex';
             document.getElementById('btn-upload-fallback').style.display = 'none';
             
-            // Reset canvas position for scanning
             const canvas = document.getElementById('canvas-output');
             canvas.style.height = '100%';
             canvas.style.objectPosition = 'center';
@@ -733,16 +805,12 @@
         const video = document.getElementById('video-stream'); if(video) { video.srcObject = null; video.style.display = 'none'; }
         document.getElementById('canvas-output').style.display = 'none';
         
-        // Hide result panel
         document.getElementById('scan-result-panel').classList.add('translate-y-full');
         document.getElementById('scanner-controls').classList.remove('translate-y-full');
     }
 
     function resumeScanner() {
-        // Hide Result Panel
         document.getElementById('scan-result-panel').classList.add('translate-y-full');
-        
-        // Show camera controls again
         document.getElementById('scanner-controls').classList.remove('translate-y-full');
         
         const canvas = document.getElementById('canvas-output');
@@ -782,7 +850,7 @@
         showLoader('กำลังวิเคราะห์กระดาษคำตอบ...'); processScanLogic();
     }
 
-    // --- STREAMING_CHUNK:OpenCV Logic with Precision Grid Mapping ---
+    // --- OpenCV Logic with Precision Grid Mapping ---
     function processScanLogic() {
         setTimeout(async () => {
             let src = null; let warped = null; let thresh = null;
@@ -791,11 +859,9 @@
                 let dst = new cv.Mat();
                 cv.cvtColor(src, dst, cv.COLOR_RGBA2GRAY, 0);
                 
-                // 1. ปรับปรุงการจับขอบกระดาษให้แม่นยำขึ้นแม้ในสภาพแสงน้อย และลดแสงสะท้อน
                 cv.GaussianBlur(dst, dst, new cv.Size(5, 5), 0, 0, cv.BORDER_DEFAULT);
-                cv.Canny(dst, dst, 30, 100); // ลด Threshold ลงเพื่อให้จับขอบกระดาษจริงได้ง่ายขึ้น
+                cv.Canny(dst, dst, 30, 100); 
 
-                // 2. ใช้ Morphology เชื่อมเส้นขอบกระดาษที่อาจจะขาดหาย (รอยต่อกระดาษกับโต๊ะ)
                 let kernel = cv.Mat.ones(5, 5, cv.CV_8U);
                 cv.morphologyEx(dst, dst, cv.MORPH_CLOSE, kernel);
                 kernel.delete();
@@ -810,17 +876,15 @@
                     let cnt = contours.get(i);
                     let area = cv.contourArea(cnt);
                     
-                    // Filter: ต้องมีขนาดใหญ่พอ (อย่างน้อย 10% ของภาพ)
                     if (area > (imgArea * 0.10)) { 
                         let peri = cv.arcLength(cnt, true); let approx = new cv.Mat();
                         cv.approxPolyDP(cnt, approx, 0.02 * peri, true);
                         
-                        // ตรวจสอบว่าเป็น 4 เหลี่ยม และมีสัดส่วนใกล้เคียงกระดาษ A4 (กว้าง/ยาว ประมาณ 0.7 หรือ 1.4)
                         if (approx.rows === 4) { 
                             let rect = cv.boundingRect(approx);
                             let aspect = rect.width / rect.height;
-                            let isPortraitA4 = aspect > 0.60 && aspect < 0.85; // แนวตั้ง
-                            let isLandscapeA4 = aspect > 1.2 && aspect < 1.6;  // แนวนอน (เผื่อถ่ายกลับหัว)
+                            let isPortraitA4 = aspect > 0.60 && aspect < 0.85; 
+                            let isLandscapeA4 = aspect > 1.2 && aspect < 1.6;  
                             
                             if ((isPortraitA4 || isLandscapeA4) && area > maxArea) { 
                                 maxArea = area; 
@@ -839,7 +903,6 @@
                     return;
                 }
 
-                // Warping process
                 let pts = []; for (let i = 0; i < 4; i++) { pts.push({ x: docCnt.data32S[i * 2], y: docCnt.data32S[i * 2 + 1] }); }
                 pts.sort((a, b) => a.y - b.y);
                 let top = pts.slice(0, 2).sort((a, b) => a.x - b.x); let bottom = pts.slice(2, 4).sort((a, b) => a.x - b.x);
@@ -847,7 +910,6 @@
 
                 let srcTri = cv.matFromArray(4, 1, cv.CV_32FC2, [ orderedPts[0].x, orderedPts[0].y, orderedPts[1].x, orderedPts[1].y, orderedPts[2].x, orderedPts[2].y, orderedPts[3].x, orderedPts[3].y ]);
                 
-                // Fixed Warp Size 
                 let w = 1240; let h = 1754; 
                 let dstTri = cv.matFromArray(4, 1, cv.CV_32FC2, [ 0, 0, w, 0, w, h, 0, h ]);
 
@@ -859,18 +921,18 @@
                 let maxScore = appState.currentExam.FullScore;
                 let optionsCount = appState.currentExam.OptionsCount;
 
-              // --- 3. PRECISION GRID MAPPING (คาร์ลิเบรตจากพิกัดบนภาพ 1240x1754 โดยตรง) ---
+                // --- 3. PRECISION GRID MAPPING (คาร์ลิเบรตจากพิกัดจริงล่าสุด) ---
                 let qConfig = {};
                 if (qCount <= 20) {
-                    qConfig = { rows: 10, r: 20, gapX: 96, gapY: 47, startY: 451, colXs: [276, 791] };
+                    qConfig = { rows: 10, r: 14, gapX: 31.5, gapY: 38.3, startY: 449, colXs: [336, 850] };
                 } else if (qCount <= 30) {
-                    qConfig = { rows: 15, r: 20, gapX: 96, gapY: 47, startY: 451, colXs: [276, 791] };
+                    qConfig = { rows: 15, r: 14, gapX: 31.5, gapY: 38.3, startY: 449, colXs: [336, 850] };
                 } else if (qCount <= 40) {
-                    // ใช้ค่าพิกัดที่คุณวัดมาได้เลยเป๊ะๆ
-                    qConfig = { rows: 20, r: 20, gapX: 96, gapY: 47, startY: 451, colXs: [276, 791] };
+                    // ใช้ค่าพิกัดที่คุณครูวัดมาได้เลยเป๊ะๆ แบบมีทศนิยมป้องกันการคลาดเคลื่อนสะสม
+                    qConfig = { rows: 20, r: 14, gapX: 31.5, gapY: 38.3, startY: 449, colXs: [336, 850] };
                 } else { // 60
-                    // สำหรับ 60 ข้อ ปรับให้สมมาตรตามสัดส่วนเดิม
-                    qConfig = { rows: 20, r: 20, gapX: 96, gapY: 47, startY: 451, colXs: [180, 520, 860] };
+                    // สำหรับ 60 ข้อ (3 คอลัมน์) คาดคะเนสัดส่วนจากความกว้างกระดาษ
+                    qConfig = { rows: 20, r: 14, gapX: 31.5, gapY: 38.3, startY: 449, colXs: [170, 560, 950] };
                 }
 
                 let r = qConfig.r;
@@ -879,7 +941,6 @@
                 let gapY = qConfig.gapY;
                 let colXs = qConfig.colXs;
 
-                // Image Binarization for Bubble Reading
                 thresh = new cv.Mat();
                 cv.cvtColor(warped, thresh, cv.COLOR_RGBA2GRAY, 0);
                 cv.threshold(thresh, thresh, 0, 255, cv.THRESH_BINARY_INV | cv.THRESH_OTSU);
@@ -890,6 +951,8 @@
                 let score = 0;
                 let scorePerQ = maxScore / qCount;
                 let optLetters = ['A', 'B', 'C', 'D', 'E'];
+                
+                let studentAnswers = {};
 
                 for (let i = 1; i <= qCount; i++) {
                     let colIdx = Math.floor((i - 1) / qConfig.rows);
@@ -919,31 +982,36 @@
                         if (pixelCount > maxPixels) { maxPixels = pixelCount; bestAns = optLetters[j]; }
                     }
 
-                    // 4. ลด Threshold ความเข้มของการฝนลงเหลือ 20% ของพื้นที่วงกลม ป้องกันดินสอไม่เข้ม
                     let minFillArea = (r * 2 * r * 2) * 0.20;
                     
                     if (maxPixels > minFillArea) {
+                        studentAnswers[i] = bestAns; 
+                        
                         if (bestAns === keys[i]) {
                             score += scorePerQ;
-                            cv.circle(warped, new cv.Point(baseX + (optLetters.indexOf(bestAns) * gapX), baseY), r+4, new cv.Scalar(0, 255, 0, 255), 4); // เขียว (ถูก)
+                            cv.circle(warped, new cv.Point(baseX + (optLetters.indexOf(bestAns) * gapX), baseY), r+4, new cv.Scalar(0, 255, 0, 255), 4); 
                         } else {
-                            cv.circle(warped, new cv.Point(baseX + (optLetters.indexOf(bestAns) * gapX), baseY), r+4, new cv.Scalar(255, 0, 0, 255), 4); // แดง (ผิด)
+                            cv.circle(warped, new cv.Point(baseX + (optLetters.indexOf(bestAns) * gapX), baseY), r+4, new cv.Scalar(255, 0, 0, 255), 4); 
                             if (keys[i]) {
-                                cv.circle(warped, new cv.Point(baseX + (optLetters.indexOf(keys[i]) * gapX), baseY), r-3, new cv.Scalar(0, 255, 0, 255), -1); // จุดเขียวทึบเฉลย
+                                cv.circle(warped, new cv.Point(baseX + (optLetters.indexOf(keys[i]) * gapX), baseY), r-3, new cv.Scalar(0, 255, 0, 255), -1); 
                             }
                         }
                     } else {
-                        // ไม่ได้ฝน วาดกรอบสีฟ้าอ่อนให้รู้ว่าตารางทาบตรงไหม
+                        studentAnswers[i] = "-";
                         cv.circle(warped, new cv.Point(baseX, baseY), r, new cv.Scalar(0, 200, 255, 255), 2); 
                     }
                 }
                 
                 score = Math.round(score * 100) / 100;
-                
-                // Show warped result to user 
                 cv.imshow('canvas-output', warped);
 
-                const scorePayload = { ExamID: appState.currentExam.ExamID, StudentID: 'STD' + Math.floor(Math.random() * 9999), TotalScore: score };
+                const scorePayload = { 
+                    ExamID: appState.currentExam.ExamID, 
+                    StudentID: 'STD' + Math.floor(Math.random() * 9999), 
+                    TotalScore: score,
+                    AnswerData: JSON.stringify(studentAnswers)
+                };
+                
                 const res = await runGasFunc('saveStudentScore', scorePayload);
                 
                 hideLoader();
@@ -957,13 +1025,11 @@
                     document.getElementById('res-score').innerText = score;
                     document.getElementById('res-full').innerText = maxScore;
                     
-                    // Show Panel and Push Canvas Up
                     document.getElementById('scan-result-panel').classList.remove('translate-y-full');
-                    document.getElementById('scanner-controls').classList.add('translate-y-full'); // ซ่อนปุ่มกล้อง
+                    document.getElementById('scanner-controls').classList.add('translate-y-full'); 
                     
-                    // จัดตำแหน่งแคนวาสเพื่อให้อยู่ในพื้นที่ที่เหลือ ไม่โดน Panel บัง
                     const canvas = document.getElementById('canvas-output');
-                    canvas.style.height = 'calc(100% - 250px)'; // เว้นระยะให้ Bottom sheet
+                    canvas.style.height = 'calc(100% - 250px)'; 
                     canvas.style.objectPosition = 'top center';
                 }
                 
