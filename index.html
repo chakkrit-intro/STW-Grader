@@ -859,18 +859,17 @@
                 let maxScore = appState.currentExam.FullScore;
                 let optionsCount = appState.currentExam.OptionsCount;
 
-                // --- 3. PRECISION GRID MAPPING (คาร์ลิเบรทใหม่จากโค้ด Print จริง) ---
+                // --- 3. PRECISION GRID MAPPING (คาร์ลิเบรทใหม่จากภาพล่าสุด) ---
                 let qConfig = {};
                 if (qCount <= 20) {
-                    qConfig = { rows: 10, r: 17, gapX: 40, gapY: 42, startY: 495, colXs: [235, 755] };
+                    qConfig = { rows: 10, r: 18, gapX: 47, gapY: 47, startY: 515, colXs: [285, 805] };
                 } else if (qCount <= 30) {
-                    qConfig = { rows: 15, r: 17, gapX: 40, gapY: 42, startY: 495, colXs: [235, 755] };
+                    qConfig = { rows: 15, r: 18, gapX: 47, gapY: 47, startY: 515, colXs: [285, 805] };
                 } else if (qCount <= 40) {
-                    // ปรับค่าแกน Y (startY) ให้ต่ำลงมาหลบ Header และแกน X (colXs) ดันขวาให้ตรงกับช้อยส์ A
-                    qConfig = { rows: 20, r: 17, gapX: 40, gapY: 42, startY: 495, colXs: [235, 755] };
+                    // ขยาย gapY ให้กว้างขึ้นเพื่อแก้ปัญหาบรรทัดลอย และขยับ colXs ไปขวาเพื่อหลบตัวเลขข้อ
+                    qConfig = { rows: 20, r: 18, gapX: 47, gapY: 47, startY: 515, colXs: [285, 805] };
                 } else { // 60
-                    // สำหรับ 3 คอลัมน์ กระจายระยะให้สมดุล
-                    qConfig = { rows: 20, r: 17, gapX: 40, gapY: 42, startY: 495, colXs: [235, 575, 915] };
+                    qConfig = { rows: 20, r: 18, gapX: 47, gapY: 47, startY: 515, colXs: [210, 560, 910] };
                 }
 
                 let r = qConfig.r;
