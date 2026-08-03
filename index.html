@@ -859,16 +859,18 @@
                 let maxScore = appState.currentExam.FullScore;
                 let optionsCount = appState.currentExam.OptionsCount;
 
-                // --- 3. PRECISION GRID MAPPING (คาร์ลิเบรตจาก Photoshop หาร 2) ---
+              // --- 3. PRECISION GRID MAPPING (คาร์ลิเบรตจากพิกัดบนภาพ 1240x1754 โดยตรง) ---
                 let qConfig = {};
                 if (qCount <= 20) {
-                    qConfig = { rows: 10, r: 18, gapX: 48, gapY: 50, startY: 450, colXs: [276, 896] };
+                    qConfig = { rows: 10, r: 20, gapX: 96, gapY: 47, startY: 451, colXs: [276, 791] };
                 } else if (qCount <= 30) {
-                    qConfig = { rows: 15, r: 18, gapX: 48, gapY: 50, startY: 450, colXs: [276, 896] };
+                    qConfig = { rows: 15, r: 20, gapX: 96, gapY: 47, startY: 451, colXs: [276, 791] };
                 } else if (qCount <= 40) {
-                    qConfig = { rows: 20, r: 18, gapX: 48, gapY: 50, startY: 450, colXs: [276, 896] };
+                    // ใช้ค่าพิกัดที่คุณวัดมาได้เลยเป๊ะๆ
+                    qConfig = { rows: 20, r: 20, gapX: 96, gapY: 47, startY: 451, colXs: [276, 791] };
                 } else { // 60
-                    qConfig = { rows: 20, r: 18, gapX: 48, gapY: 50, startY: 450, colXs: [195, 545, 896] };
+                    // สำหรับ 60 ข้อ ปรับให้สมมาตรตามสัดส่วนเดิม
+                    qConfig = { rows: 20, r: 20, gapX: 96, gapY: 47, startY: 451, colXs: [180, 520, 860] };
                 }
 
                 let r = qConfig.r;
