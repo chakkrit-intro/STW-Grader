@@ -859,17 +859,16 @@
                 let maxScore = appState.currentExam.FullScore;
                 let optionsCount = appState.currentExam.OptionsCount;
 
-                // --- 3. PRECISION GRID MAPPING (คาร์ลิเบรทใหม่จากภาพล่าสุด) ---
+                // --- 3. PRECISION GRID MAPPING (คาร์ลิเบรตจาก Photoshop หาร 2) ---
                 let qConfig = {};
                 if (qCount <= 20) {
-                    qConfig = { rows: 10, r: 18, gapX: 47, gapY: 47, startY: 515, colXs: [285, 805] };
+                    qConfig = { rows: 10, r: 18, gapX: 48, gapY: 50, startY: 450, colXs: [276, 896] };
                 } else if (qCount <= 30) {
-                    qConfig = { rows: 15, r: 18, gapX: 47, gapY: 47, startY: 515, colXs: [285, 805] };
+                    qConfig = { rows: 15, r: 18, gapX: 48, gapY: 50, startY: 450, colXs: [276, 896] };
                 } else if (qCount <= 40) {
-                    // ขยาย gapY ให้กว้างขึ้นเพื่อแก้ปัญหาบรรทัดลอย และขยับ colXs ไปขวาเพื่อหลบตัวเลขข้อ
-                    qConfig = { rows: 20, r: 18, gapX: 47, gapY: 47, startY: 515, colXs: [285, 805] };
+                    qConfig = { rows: 20, r: 18, gapX: 48, gapY: 50, startY: 450, colXs: [276, 896] };
                 } else { // 60
-                    qConfig = { rows: 20, r: 18, gapX: 47, gapY: 47, startY: 515, colXs: [210, 560, 910] };
+                    qConfig = { rows: 20, r: 18, gapX: 48, gapY: 50, startY: 450, colXs: [195, 545, 896] };
                 }
 
                 let r = qConfig.r;
