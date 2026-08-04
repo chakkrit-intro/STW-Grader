@@ -437,8 +437,18 @@
                     method: 'POST', body: JSON.stringify({ funcName: funcName, args: args }), headers: { 'Content-Type': 'text/plain;charset=utf-8' }, redirect: 'follow'
                 })
                 .then(res => { if (!res.ok) throw new Error("HTTP!"); return res.json(); })
-                .then(result => { if (result.error) reject(new Error(result.error)); else resolve(result.data); })
-                .catch(err => { resolve(fallbackLocal(funcName, args)); });
+                .then(result => { 
+                    if (result.error) {
+                        console.error("Backend Error:", result.error);
+                        // ถ้าเจอ Error จริงๆ (เช่น ลืมใส่ฟังก์ชัน) ให้โยน Error ออกมา อย่าพึ่ง Fallback เงียบๆ
+                        if(result.error.includes("API Function not found")) throw new Error(result.error);
+                        reject(new Error(result.error)); 
+                    } else resolve(result.data); 
+                })
+                .catch(err => { 
+                    console.warn("Using Local Fallback due to error: ", err.message);
+                    resolve(fallbackLocal(funcName, args)); 
+                });
             }
         });
     }
@@ -472,7 +482,7 @@
         return null;
     }
 
-    // --- STREAMING_CHUNK:UI Helpers ---
+    // --- UI Helpers ---
     const showLoader = (text) => { document.getElementById('loader-text').innerText = text; document.getElementById('global-loader').style.display = 'flex'; }
     const hideLoader = () => document.getElementById('global-loader').style.display = 'none';
     const openModal = (id) => { document.getElementById(id).classList.remove('hidden'); document.getElementById(id).classList.add('flex'); }
@@ -527,7 +537,7 @@
         }
     }
 
-    // --- STREAMING_CHUNK:App Initialization ---
+    // --- App Initialization ---
     function applyTheme() {
         document.getElementById('ctx-term').innerText = appState.settings.term; document.getElementById('ctx-year').innerText = appState.settings.year; document.getElementById('ctx-type').innerText = appState.settings.examType;
         document.getElementById('dynamic-bg').style.backgroundImage = appState.settings.bgUrl ? `url('${appState.settings.bgUrl}')` : 'none';
@@ -556,7 +566,7 @@
         try { const res = await runGasFunc('saveSettings', appState.settings); if(res.success) { applyTheme(); showAlert('สำเร็จ', 'บันทึกการตั้งค่าเรียบร้อยแล้ว'); updateLocalExams(); navigate('dashboard'); } else showAlert('ข้อผิดพลาด', res.message, 'error'); } catch(e) { showAlert('ข้อผิดพลาด', 'บันทึกไม่สำเร็จ', 'error'); } finally { hideLoader(); }
     }
 
-    // --- STREAMING_CHUNK:Rendering Dashboard & Cards ---
+    // --- Rendering Dashboard & Cards ---
     function renderDashboard() {
         document.getElementById('stat-exams').innerText = appState.exams.length; document.getElementById('stat-scanned').innerText = appState.exams.filter(e => e.Status === 'Graded').length;
         const container = document.getElementById('recent-exams-list'); if (!container) return; container.innerHTML = '';
@@ -613,7 +623,7 @@
         });
     }
 
-    // --- STREAMING_CHUNK:Excel Export Engine ---
+    // --- Excel Export Engine ---
     async function exportToExcel(examID) {
         showLoader('กำลังดาวน์โหลดข้อมูลคะแนน...');
         try {
@@ -664,7 +674,7 @@
         }
     }
 
-    // --- STREAMING_CHUNK:Exam Modals ---
+    // --- Exam Modals ---
     async function handleCreateExam(e) {
         e.preventDefault(); const examID = 'EXM' + Date.now().toString().slice(-6);
         const newExam = { ExamID: examID, SubjectCode: document.getElementById('inp-code').value, SubjectName: document.getElementById('inp-name').value, SubjectGroup: document.getElementById('inp-group').value, ClassLevel: document.getElementById('inp-class').value, TotalQs: parseInt(document.getElementById('inp-total-qs').value), OptionsCount: parseInt(document.getElementById('inp-options').value), FullScore: parseFloat(document.getElementById('inp-full-score').value), Year: appState.settings.year, Term: appState.settings.term, ExamType: appState.settings.examType, Status: 'Active' };
@@ -697,7 +707,7 @@
         try { const res = await runGasFunc('saveAnswerKey', { ExamID: appState.currentExam.ExamID, KeyData: JSON.stringify(keyData) }); if(res.success) { showAlert('สำเร็จ', 'บันทึกเฉลยเรียบร้อย'); closeModal('modal-set-key'); } } catch(e) {} finally { hideLoader(); }
     }
     
-    // --- STREAMING_CHUNK:Print Engine (A4 Sizing) ---
+    // --- Print Engine (A4 Sizing) ---
     function printPaper(examID) {
         const exam = appState.exams.find(e => e.ExamID === examID); if (!exam) return;
         showAlert('กำลังเปิดหน้าต่างพิมพ์...', 'กรุณาปริ้นบนกระดาษ A4 เสมอ');
@@ -752,7 +762,7 @@
         window.print();
     }
 
-    // --- STREAMING_CHUNK:Camera Management ---
+    // --- Camera Management ---
     async function startScanner(examID) {
         if (!appState.cvReady) { showAlert('รอสักครู่', 'ระบบวิเคราะห์ภาพกำลังโหลด...', 'error'); return; }
         
@@ -844,7 +854,7 @@
         showLoader('กำลังวิเคราะห์กระดาษคำตอบ...'); processScanLogic();
     }
 
-    // --- STREAMING_CHUNK:OpenCV Calibration and Marking ---
+    // --- OpenCV Calibration and Marking ---
     function processScanLogic() {
         setTimeout(async () => {
             let src = null; let warped = null; let thresh = null;
@@ -915,7 +925,7 @@
                 let maxScore = appState.currentExam.FullScore;
                 let optionsCount = appState.currentExam.OptionsCount;
 
-                // --- 3. PRECISION GRID MAPPING (คาร์ลิเบรตจากจุดทศนิยมเป๊ะๆ) ---
+                // --- PRECISION GRID MAPPING ---
                 let qConfig = {};
                 // ตั้งค่า: แกน Y เริ่มที่ 449, ห่างบรรทัดละ 38.31 / แกน X เริ่มที่ 336 และคอลัมน์สอง 850, ห่างช่องละ 31.66
                 if (qCount <= 20) {
@@ -1002,7 +1012,7 @@
                     ExamID: appState.currentExam.ExamID, 
                     StudentID: 'STD' + Math.floor(Math.random() * 9999), 
                     TotalScore: score,
-                    AnswerData: JSON.stringify(studentAnswers)
+                    AnswerData: JSON.stringify(studentAnswers) // ส่งข้อมูลคำตอบไปด้วย
                 };
                 
                 const res = await runGasFunc('saveStudentScore', scorePayload);
@@ -1036,7 +1046,7 @@
         }, 100);
     }
 
-    // --- STREAMING_CHUNK:App Start ---
+    // --- App Start ---
     window.onload = initApp;
 </script>
 </body>
