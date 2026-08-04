@@ -22,7 +22,7 @@
     </script>
 
     <script>
-        // ประกาศตัวแปรสำคัญไว้บนสุด เพื่อไม่ให้เกิด Error onOpenCvReady is not defined
+        // ประกาศตัวแปรสำคัญไว้บนสุด
         const VERCEL_GAS_API_URL = "https://script.google.com/macros/s/AKfycbwO15hYkUPivcBS1Iz0ddwU8wWx_c0kMda9kvoDtoH8ncdS70KqSfs4HjdchY7SiUBU/exec";
         
         let appState = { 
@@ -36,7 +36,7 @@
         }
     </script>
     
-    <!-- โหลด OpenCV หลังจากที่เตรียมฟังก์ชันรับมือเสร็จแล้ว -->
+    <!-- โหลด OpenCV -->
     <script async src="https://docs.opencv.org/4.7.0/opencv.js" onload="onOpenCvReady();" type="text/javascript"></script>
 
     <style>
@@ -303,6 +303,7 @@
 </div>
 
 <!-- MODALS -->
+
 <!-- Create Exam -->
 <div id="modal-create-exam" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden justify-center items-center p-4">
     <div class="bg-white rounded-2xl w-full max-w-lg shadow-2xl flex flex-col max-h-[90vh]">
@@ -376,6 +377,75 @@
     </div>
 </div>
 
+<!-- Edit Exam -->
+<div id="modal-edit-exam" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden justify-center items-center p-4">
+    <div class="bg-white rounded-2xl w-full max-w-lg shadow-2xl flex flex-col max-h-[90vh]">
+        <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 rounded-t-2xl">
+            <h2 class="text-base font-bold text-dark">แก้ไขข้อมูลข้อสอบ</h2>
+            <button onclick="closeModal('modal-edit-exam')" class="text-slate-400 hover:text-slate-700 transition"><i class="ph ph-x text-xl"></i></button>
+        </div>
+        <div class="p-5 overflow-y-auto">
+            <form id="form-edit-exam" onsubmit="handleUpdateExam(event)">
+                <input type="hidden" id="edit-exam-id">
+                <div class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="col-span-2 md:col-span-1">
+                            <label class="block text-xs font-medium text-slate-700 mb-1">ชื่อวิชา (Name)</label>
+                            <input type="text" id="edit-name" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary outline-none">
+                        </div>
+                        <div class="col-span-2 md:col-span-1">
+                            <label class="block text-xs font-medium text-slate-700 mb-1">รหัสวิชา (Code)</label>
+                            <input type="text" id="edit-code" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary outline-none">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-700 mb-1">กลุ่มสาระการเรียนรู้</label>
+                            <select id="edit-group" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary outline-none bg-white">
+                                <option value="วิทยาศาสตร์และเทคโนโลยี">วิทยาศาสตร์และเทคโนโลยี</option>
+                                <option value="คณิตศาสตร์">คณิตศาสตร์</option>
+                                <option value="ภาษาต่างประเทศ">ภาษาต่างประเทศ</option>
+                                <option value="ภาษาไทย">ภาษาไทย</option>
+                                <option value="สังคมศึกษาฯ">สังคมศึกษา ศาสนา และวัฒนธรรม</option>
+                                <option value="สุขศึกษาและพลศึกษา">สุขศึกษาและพลศึกษา</option>
+                                <option value="ศิลปะ">ศิลปะ</option>
+                                <option value="การงานอาชีพ">การงานอาชีพ</option>
+                                <option value="กิจกรรมพัฒนาผู้เรียน">กิจกรรมพัฒนาผู้เรียน</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-700 mb-1">ชั้น ม.</label>
+                            <input type="text" id="edit-class" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary outline-none">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-3">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-700 mb-1">จำนวนข้อ</label>
+                            <select id="edit-total-qs" required class="w-full border border-slate-300 rounded-lg px-2 py-2 text-sm focus:ring-2 focus:ring-primary outline-none bg-white">
+                                <option value="20">20 ข้อ</option><option value="30">30 ข้อ</option><option value="40">40 ข้อ</option><option value="60">60 ข้อ</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-700 mb-1">ตัวเลือก</label>
+                            <select id="edit-options" class="w-full border border-slate-300 rounded-lg px-2 py-2 text-sm focus:ring-2 focus:ring-primary outline-none bg-white">
+                                <option value="4">4 (A-D)</option><option value="5">5 (A-E)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-700 mb-1">คะแนนเต็ม</label>
+                            <input type="number" id="edit-full-score" required min="1" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none">
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-6 flex justify-end gap-3 border-t border-slate-100 pt-4">
+                    <button type="button" onclick="closeModal('modal-edit-exam')" class="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-xl text-sm font-medium transition">ยกเลิก</button>
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl text-sm font-medium shadow-md transition">บันทึกการแก้ไข</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <!-- Set Answer Key -->
 <div id="modal-set-key" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden justify-center items-center p-4">
     <div class="bg-white rounded-2xl w-full max-w-lg shadow-2xl flex flex-col max-h-[90vh]">
@@ -408,9 +478,9 @@
                 <i class="ph-fill ph-lock-key text-2xl"></i>
             </div>
             <h2 class="text-lg font-bold text-dark mb-1">ยืนยันตัวตน Admin</h2>
-            <p class="text-xs text-slate-500 mb-5">กรุณาใส่รหัสผ่านเพื่อเข้าสู่หน้าตั้งค่า</p>
+            <p class="text-xs text-slate-500 mb-5">กรุณาใส่รหัสผ่านเพื่อดำเนินการต่อ</p>
             <input type="password" id="inp-admin-password" onkeyup="if(event.key === 'Enter') verifyAdmin()" class="w-full border border-slate-300 rounded-xl px-4 py-2.5 text-center tracking-widest focus:ring-2 focus:ring-primary outline-none mb-4 text-sm" placeholder="••••••••">
-            <button onclick="verifyAdmin()" class="w-full bg-slate-800 hover:bg-slate-900 text-white py-2.5 rounded-xl text-sm font-medium transition shadow-md">เข้าสู่ระบบ</button>
+            <button onclick="verifyAdmin()" class="w-full bg-slate-800 hover:bg-slate-900 text-white py-2.5 rounded-xl text-sm font-medium transition shadow-md">ตกลง</button>
             <button onclick="closeModal('modal-admin-auth')" class="w-full text-slate-500 py-2.5 mt-1 text-xs hover:underline">ยกเลิก</button>
         </div>
     </div>
@@ -427,7 +497,9 @@
 </div>
 
 <script>
-    // --- API Wrapper ---
+    let currentAdminAction = null;
+    let currentAdminActionData = null;
+
     async function runGasFunc(funcName, ...args) {
         return new Promise((resolve, reject) => {
             if (typeof google !== 'undefined' && google.script && google.script.run) {
@@ -437,18 +509,8 @@
                     method: 'POST', body: JSON.stringify({ funcName: funcName, args: args }), headers: { 'Content-Type': 'text/plain;charset=utf-8' }, redirect: 'follow'
                 })
                 .then(res => { if (!res.ok) throw new Error("HTTP!"); return res.json(); })
-                .then(result => { 
-                    if (result.error) {
-                        console.error("Backend Error:", result.error);
-                        // ถ้าเจอ Error จริงๆ (เช่น ลืมใส่ฟังก์ชัน) ให้โยน Error ออกมา อย่าพึ่ง Fallback เงียบๆ
-                        if(result.error.includes("API Function not found")) throw new Error(result.error);
-                        reject(new Error(result.error)); 
-                    } else resolve(result.data); 
-                })
-                .catch(err => { 
-                    console.warn("Using Local Fallback due to error: ", err.message);
-                    resolve(fallbackLocal(funcName, args)); 
-                });
+                .then(result => { if (result.error) reject(new Error(result.error)); else resolve(result.data); })
+                .catch(err => { resolve(fallbackLocal(funcName, args)); });
             }
         });
     }
@@ -460,6 +522,8 @@
         if (funcName === 'saveSettings') { ls.settings = args[0]; localStorage.setItem('stw_grader_mock', JSON.stringify(ls)); return { success: true }; }
         if (funcName === 'getExams') return ls.exams || [];
         if (funcName === 'saveExam') { let ex = args[0]; let idx = ls.exams.findIndex(e => e.ExamID === ex.ExamID); if (idx >= 0) ls.exams[idx] = ex; else ls.exams.push(ex); localStorage.setItem('stw_grader_mock', JSON.stringify(ls)); return { success: true, examID: ex.ExamID }; }
+        if (funcName === 'updateExam') { let ex = args[0]; let idx = ls.exams.findIndex(e => e.ExamID === ex.ExamID); if (idx >= 0) { ls.exams[idx] = {...ls.exams[idx], ...ex}; localStorage.setItem('stw_grader_mock', JSON.stringify(ls)); return { success: true }; } return { success: false }; }
+        if (funcName === 'deleteExam') { ls.exams = ls.exams.filter(e => e.ExamID !== args[0]); localStorage.setItem('stw_grader_mock', JSON.stringify(ls)); return { success: true }; }
         if (funcName === 'saveAnswerKey') { let idx = ls.exams.findIndex(e => e.ExamID === args[0].ExamID); if (idx >= 0) { ls.exams[idx].KeyData_JSON = args[0].KeyData; localStorage.setItem('stw_grader_mock', JSON.stringify(ls)); } return { success: true }; }
         if (funcName === 'getAnswerKey') { let ex = ls.exams.find(e => e.ExamID === args[0]); return ex && ex.KeyData_JSON ? { ExamID: args[0], KeyData_JSON: ex.KeyData_JSON } : null; }
         if (funcName === 'saveStudentScore') {
@@ -482,7 +546,6 @@
         return null;
     }
 
-    // --- UI Helpers ---
     const showLoader = (text) => { document.getElementById('loader-text').innerText = text; document.getElementById('global-loader').style.display = 'flex'; }
     const hideLoader = () => document.getElementById('global-loader').style.display = 'none';
     const openModal = (id) => { document.getElementById(id).classList.remove('hidden'); document.getElementById(id).classList.add('flex'); }
@@ -494,16 +557,38 @@
         box.classList.remove('opacity-0', '-translate-y-10'); setTimeout(() => box.classList.add('opacity-0', '-translate-y-10'), 4000);
     }
 
-    // --- Navigation and Auth ---
     function verifyAdmin() {
         const pwd = String(document.getElementById('inp-admin-password').value).trim();
         const correctPwd = String(appState.settings.adminPassword || 'admin123').trim();
-        if (pwd === correctPwd) { closeModal('modal-admin-auth'); navigate('settings', true); document.getElementById('inp-admin-password').value = ''; } 
-        else { showAlert('รหัสไม่ถูกต้อง', 'กรุณาลองใหม่อีกครั้ง', 'error'); document.getElementById('inp-admin-password').value = ''; }
+        
+        if (pwd === correctPwd) { 
+            closeModal('modal-admin-auth'); 
+            document.getElementById('inp-admin-password').value = '';
+            
+            if(currentAdminAction === 'settings') {
+                navigate('settings', true); 
+            } else if (currentAdminAction === 'edit') {
+                proceedEditExam(currentAdminActionData);
+            } else if (currentAdminAction === 'delete') {
+                proceedDeleteExam(currentAdminActionData);
+            }
+            
+            currentAdminAction = null;
+            currentAdminActionData = null;
+        } else { 
+            showAlert('รหัสไม่ถูกต้อง', 'กรุณาลองใหม่อีกครั้ง', 'error'); 
+            document.getElementById('inp-admin-password').value = ''; 
+        }
+    }
+
+    function authAdminAction(action, data = null) {
+        currentAdminAction = action;
+        currentAdminActionData = data;
+        openModal('modal-admin-auth');
     }
 
     function navigate(viewId, skipAuth = false) {
-        if(viewId === 'settings' && !skipAuth) { openModal('modal-admin-auth'); return; }
+        if(viewId === 'settings' && !skipAuth) { authAdminAction('settings'); return; }
         
         document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
         document.getElementById('view-scanner').classList.remove('active');
@@ -537,7 +622,6 @@
         }
     }
 
-    // --- App Initialization ---
     function applyTheme() {
         document.getElementById('ctx-term').innerText = appState.settings.term; document.getElementById('ctx-year').innerText = appState.settings.year; document.getElementById('ctx-type').innerText = appState.settings.examType;
         document.getElementById('dynamic-bg').style.backgroundImage = appState.settings.bgUrl ? `url('${appState.settings.bgUrl}')` : 'none';
@@ -566,7 +650,6 @@
         try { const res = await runGasFunc('saveSettings', appState.settings); if(res.success) { applyTheme(); showAlert('สำเร็จ', 'บันทึกการตั้งค่าเรียบร้อยแล้ว'); updateLocalExams(); navigate('dashboard'); } else showAlert('ข้อผิดพลาด', res.message, 'error'); } catch(e) { showAlert('ข้อผิดพลาด', 'บันทึกไม่สำเร็จ', 'error'); } finally { hideLoader(); }
     }
 
-    // --- Rendering Dashboard & Cards ---
     function renderDashboard() {
         document.getElementById('stat-exams').innerText = appState.exams.length; document.getElementById('stat-scanned').innerText = appState.exams.filter(e => e.Status === 'Graded').length;
         const container = document.getElementById('recent-exams-list'); if (!container) return; container.innerHTML = '';
@@ -599,8 +682,14 @@
             let dispClass = exam.ClassLevel.toString().startsWith('ม.') ? exam.ClassLevel : 'ม.' + exam.ClassLevel;
             container.innerHTML += `
                 <div class="glass-card p-6 rounded-2xl flex flex-col h-full hover:shadow-xl transition-all transform hover:-translate-y-1 border-t-4 border-t-emerald-500 relative group overflow-hidden">
+                    
+                    <div class="absolute top-3 right-3 flex gap-1 z-20">
+                        <button onclick="authAdminAction('edit', '${exam.ExamID}')" class="w-8 h-8 rounded-lg bg-slate-50 hover:bg-blue-100 text-slate-400 hover:text-blue-600 flex items-center justify-center transition border border-slate-200" title="แก้ไข"><i class="ph-fill ph-pencil-simple text-lg"></i></button>
+                        <button onclick="authAdminAction('delete', '${exam.ExamID}')" class="w-8 h-8 rounded-lg bg-slate-50 hover:bg-red-100 text-slate-400 hover:text-red-600 flex items-center justify-center transition border border-slate-200" title="ลบ"><i class="ph-fill ph-trash text-lg"></i></button>
+                    </div>
+
                     <div class="absolute -right-6 -top-6 w-24 h-24 bg-emerald-50 rounded-full z-0 group-hover:scale-150 transition-transform duration-700 opacity-50 pointer-events-none"></div>
-                    <div class="relative z-10 flex justify-between items-start mb-4">
+                    <div class="relative z-10 flex justify-between items-start mb-4 pr-16">
                         <div class="flex-1 pr-2">
                             <h3 class="font-bold text-2xl text-slate-800 leading-tight">${exam.SubjectName}</h3>
                             <p class="text-base font-semibold text-emerald-600 mt-1">${exam.SubjectCode}</p>
@@ -623,7 +712,53 @@
         });
     }
 
-    // --- Excel Export Engine ---
+    async function proceedDeleteExam(examID) {
+        if (!confirm('ยืนยันการลบข้อสอบนี้? ข้อมูลจะไม่สามารถกู้คืนได้')) return;
+        
+        showLoader('กำลังลบข้อมูล...');
+        try {
+            const res = await runGasFunc('deleteExam', examID);
+            if (res.success) {
+                appState.allExams = appState.allExams.filter(e => e.ExamID !== examID);
+                updateLocalExams();
+                showAlert('สำเร็จ', 'ลบข้อสอบเรียบร้อยแล้ว');
+            } else showAlert('ข้อผิดพลาด', 'ลบไม่สำเร็จ', 'error');
+        } catch(e) { showAlert('ข้อผิดพลาด', 'ลบไม่สำเร็จ', 'error'); } finally { hideLoader(); }
+    }
+
+    function proceedEditExam(examID) {
+        const exam = appState.exams.find(e => e.ExamID === examID);
+        if (!exam) return;
+        
+        document.getElementById('edit-exam-id').value = exam.ExamID;
+        document.getElementById('edit-name').value = exam.SubjectName;
+        document.getElementById('edit-code').value = exam.SubjectCode;
+        document.getElementById('edit-group').value = exam.SubjectGroup;
+        document.getElementById('edit-class').value = exam.ClassLevel;
+        document.getElementById('edit-total-qs').value = exam.TotalQs;
+        document.getElementById('edit-options').value = exam.OptionsCount;
+        document.getElementById('edit-full-score').value = exam.FullScore;
+        
+        openModal('modal-edit-exam');
+    }
+
+    async function handleUpdateExam(e) {
+        e.preventDefault();
+        const examID = document.getElementById('edit-exam-id').value;
+        const updatedExam = { ExamID: examID, SubjectCode: document.getElementById('edit-code').value, SubjectName: document.getElementById('edit-name').value, SubjectGroup: document.getElementById('edit-group').value, ClassLevel: document.getElementById('edit-class').value, TotalQs: parseInt(document.getElementById('edit-total-qs').value), OptionsCount: parseInt(document.getElementById('edit-options').value), FullScore: parseFloat(document.getElementById('edit-full-score').value), Year: appState.settings.year, Term: appState.settings.term, ExamType: appState.settings.examType };
+        
+        showLoader('กำลังบันทึก...'); closeModal('modal-edit-exam');
+        try { 
+            const res = await runGasFunc('updateExam', updatedExam); 
+            if(res.success) { 
+                let idx = appState.allExams.findIndex(e => e.ExamID === examID);
+                if (idx >= 0) appState.allExams[idx] = { ...appState.allExams[idx], ...updatedExam };
+                updateLocalExams();
+                showAlert('สำเร็จ', 'อัปเดตข้อมูลเรียบร้อย'); 
+            } 
+        } catch(e) { showAlert('ข้อผิดพลาด', 'บันทึกไม่สำเร็จ', 'error'); } finally { hideLoader(); }
+    }
+
     async function exportToExcel(examID) {
         showLoader('กำลังดาวน์โหลดข้อมูลคะแนน...');
         try {
@@ -674,7 +809,6 @@
         }
     }
 
-    // --- Exam Modals ---
     async function handleCreateExam(e) {
         e.preventDefault(); const examID = 'EXM' + Date.now().toString().slice(-6);
         const newExam = { ExamID: examID, SubjectCode: document.getElementById('inp-code').value, SubjectName: document.getElementById('inp-name').value, SubjectGroup: document.getElementById('inp-group').value, ClassLevel: document.getElementById('inp-class').value, TotalQs: parseInt(document.getElementById('inp-total-qs').value), OptionsCount: parseInt(document.getElementById('inp-options').value), FullScore: parseFloat(document.getElementById('inp-full-score').value), Year: appState.settings.year, Term: appState.settings.term, ExamType: appState.settings.examType, Status: 'Active' };
@@ -707,7 +841,6 @@
         try { const res = await runGasFunc('saveAnswerKey', { ExamID: appState.currentExam.ExamID, KeyData: JSON.stringify(keyData) }); if(res.success) { showAlert('สำเร็จ', 'บันทึกเฉลยเรียบร้อย'); closeModal('modal-set-key'); } } catch(e) {} finally { hideLoader(); }
     }
     
-    // --- Print Engine (A4 Sizing) ---
     function printPaper(examID) {
         const exam = appState.exams.find(e => e.ExamID === examID); if (!exam) return;
         showAlert('กำลังเปิดหน้าต่างพิมพ์...', 'กรุณาปริ้นบนกระดาษ A4 เสมอ');
@@ -762,7 +895,6 @@
         window.print();
     }
 
-    // --- Camera Management ---
     async function startScanner(examID) {
         if (!appState.cvReady) { showAlert('รอสักครู่', 'ระบบวิเคราะห์ภาพกำลังโหลด...', 'error'); return; }
         
@@ -854,7 +986,6 @@
         showLoader('กำลังวิเคราะห์กระดาษคำตอบ...'); processScanLogic();
     }
 
-    // --- OpenCV Calibration and Marking ---
     function processScanLogic() {
         setTimeout(async () => {
             let src = null; let warped = null; let thresh = null;
@@ -925,17 +1056,16 @@
                 let maxScore = appState.currentExam.FullScore;
                 let optionsCount = appState.currentExam.OptionsCount;
 
-                // --- PRECISION GRID MAPPING ---
+                // --- PRECISION GRID MAPPING (คาร์ลิเบรตจากจุดทศนิยมล่าสุด) ---
                 let qConfig = {};
-                // ตั้งค่า: แกน Y เริ่มที่ 449, ห่างบรรทัดละ 38.31 / แกน X เริ่มที่ 336 และคอลัมน์สอง 850, ห่างช่องละ 31.66
                 if (qCount <= 20) {
-                    qConfig = { rows: 10, r: 18, gapX: 31.66, gapY: 38.31, startY: 449, colXs: [336, 850] };
+                    qConfig = { rows: 10, r: 18, gapX: 31.6, gapY: 43.88, startY: 448, colXs: [332, 848] };
                 } else if (qCount <= 30) {
-                    qConfig = { rows: 15, r: 18, gapX: 31.66, gapY: 38.31, startY: 449, colXs: [336, 850] };
+                    qConfig = { rows: 15, r: 18, gapX: 31.3, gapY: 43.78, startY: 449, colXs: [334, 848] };
                 } else if (qCount <= 40) {
                     qConfig = { rows: 20, r: 18, gapX: 31.66, gapY: 38.31, startY: 449, colXs: [336, 850] };
                 } else { // 60
-                    qConfig = { rows: 20, r: 18, gapX: 31.66, gapY: 38.31, startY: 449, colXs: [240, 550, 850] };
+                    qConfig = { rows: 20, r: 18, gapX: 31.6, gapY: 43.7, startY: 450, colXs: [245, 586, 925] };
                 }
 
                 let r = qConfig.r;
@@ -1012,7 +1142,7 @@
                     ExamID: appState.currentExam.ExamID, 
                     StudentID: 'STD' + Math.floor(Math.random() * 9999), 
                     TotalScore: score,
-                    AnswerData: JSON.stringify(studentAnswers) // ส่งข้อมูลคำตอบไปด้วย
+                    AnswerData: JSON.stringify(studentAnswers)
                 };
                 
                 const res = await runGasFunc('saveStudentScore', scorePayload);
@@ -1046,7 +1176,6 @@
         }, 100);
     }
 
-    // --- App Start ---
     window.onload = initApp;
 </script>
 </body>
