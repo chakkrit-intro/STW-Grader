@@ -22,11 +22,12 @@
     </script>
 
     <script>
-        // ประกาศตัวแปรสำคัญไว้บนสุด
+        // ประกาศตัวแปรสำคัญไว้บนสุด พร้อมเพิ่มสถานะ isAdmin
         const VERCEL_GAS_API_URL = "https://script.google.com/macros/s/AKfycbwO15hYkUPivcBS1Iz0ddwU8wWx_c0kMda9kvoDtoH8ncdS70KqSfs4HjdchY7SiUBU/exec";
         
         let appState = { 
             allExams: [], exams: [], currentExam: null, cvReady: false, cameraStream: null, 
+            isAdmin: false, // สถานะเช็คการเข้าระบบของแอดมิน
             settings: { term: '1', year: '2567', examType: 'กลางภาค', adminPassword: 'admin123', bgUrl: '', headerBgUrl: '' } 
         };
 
@@ -110,7 +111,7 @@
         <button onclick="navigate('exam')" id="nav-exam" class="nav-btn shrink-0 snap-center flex items-center px-4 py-2 rounded-xl font-medium transition-colors text-slate-600 hover:bg-slate-100 border border-transparent">
             <i class="ph ph-files text-lg mr-2"></i><span class="text-base">จัดการข้อสอบ</span>
         </button>
-        <button onclick="openModal('modal-admin-auth')" id="nav-settings" class="nav-btn shrink-0 snap-center flex items-center px-4 py-2 rounded-xl font-medium transition-colors text-slate-600 hover:bg-slate-100 border border-transparent">
+        <button onclick="navigate('settings')" id="nav-settings" class="nav-btn shrink-0 snap-center flex items-center px-4 py-2 rounded-xl font-medium transition-colors text-slate-600 hover:bg-slate-100 border border-transparent">
             <i class="ph ph-gear text-lg mr-2"></i><span class="text-base">ตั้งค่า</span>
         </button>
     </nav>
@@ -158,7 +159,8 @@
     <div id="view-exam" class="view-section p-5 md:p-10 max-w-6xl mx-auto relative z-10 pb-32 min-h-full">
         <header class="flex flex-col sm:flex-row sm:items-center justify-between mb-5 gap-3">
             <h1 class="text-2xl md:text-3xl font-bold text-dark drop-shadow-sm bg-white/80 inline-block px-4 py-1.5 rounded-xl backdrop-blur-sm border border-white">จัดการข้อสอบ</h1>
-            <button onclick="openModal('modal-create-exam')" class="bg-gradient-to-r from-emerald-500 to-teal-500 text-white px-5 py-2.5 rounded-xl font-medium shadow-md hover:shadow-lg transition transform hover:-translate-y-0.5 flex items-center justify-center text-base border border-emerald-400 shrink-0">
+            <!-- สร้างข้อสอบ ถูกซ่อนไว้เป็นค่าเริ่มต้น (เพิ่ม id="btn-create-exam") -->
+            <button id="btn-create-exam" onclick="openModal('modal-create-exam')" class="bg-gradient-to-r from-emerald-500 to-teal-500 text-white px-5 py-2.5 rounded-xl font-medium shadow-md hover:shadow-lg transition transform hover:-translate-y-0.5 hidden items-center justify-center text-base border border-emerald-400 shrink-0">
                 <i class="ph ph-plus-circle text-xl mr-2"></i> สร้างข้อสอบ
             </button>
         </header>
@@ -565,12 +567,12 @@
             closeModal('modal-admin-auth'); 
             document.getElementById('inp-admin-password').value = '';
             
+            // ตั้งสถานะให้เป็น Admin
+            appState.isAdmin = true;
+            applyAdminView(); // อัปเดต View เป็นแอดมินทันที
+            
             if(currentAdminAction === 'settings') {
                 navigate('settings', true); 
-            } else if (currentAdminAction === 'edit') {
-                proceedEditExam(currentAdminActionData);
-            } else if (currentAdminAction === 'delete') {
-                proceedDeleteExam(currentAdminActionData);
             }
             
             currentAdminAction = null;
@@ -587,8 +589,27 @@
         openModal('modal-admin-auth');
     }
 
+    // เปิด/ปิด การใช้งานปุ่มสำหรับแอดมินเท่านั้น
+    function applyAdminView() {
+        const createBtn = document.getElementById('btn-create-exam');
+        if (createBtn) {
+            if (appState.isAdmin) {
+                createBtn.classList.remove('hidden');
+                createBtn.classList.add('flex');
+            } else {
+                createBtn.classList.add('hidden');
+                createBtn.classList.remove('flex');
+            }
+        }
+        renderExamCards(); // จะสั่งวาดการ์ดใหม่เพื่อแสดง/ซ่อนปุ่ม แก้ไขและลบ
+    }
+
     function navigate(viewId, skipAuth = false) {
-        if(viewId === 'settings' && !skipAuth) { authAdminAction('settings'); return; }
+        // หากจะเข้าตั้งค่า แต่ยังไม่ได้เป็น Admin ให้โชว์ Modal รหัสผ่านก่อน
+        if(viewId === 'settings' && !appState.isAdmin && !skipAuth) { 
+            authAdminAction('settings'); 
+            return; 
+        }
         
         document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
         document.getElementById('view-scanner').classList.remove('active');
@@ -634,7 +655,9 @@
             await runGasFunc('setupDatabase');
             const set = await runGasFunc('getSettings'); if (set && Object.keys(set).length > 0) appState.settings = { ...appState.settings, ...set };
             const data = await runGasFunc('getExams'); appState.allExams = data || [];
-            applyTheme(); updateLocalExams();
+            applyTheme(); 
+            updateLocalExams();
+            applyAdminView(); // ประมวลผลซ่อนปุ่มตั้งแต่เริ่มต้น
         } catch(e) { showAlert('ข้อผิดพลาด', 'เชื่อมต่อฐานข้อมูลไม่สำเร็จ', 'error'); } finally { hideLoader(); }
     }
 
@@ -680,13 +703,22 @@
         
         filtered.forEach(exam => {
             let dispClass = exam.ClassLevel.toString().startsWith('ม.') ? exam.ClassLevel : 'ม.' + exam.ClassLevel;
+            
+            // แสดงปุ่ม แก้ไข/ลบ ก็ต่อเมื่อเป็นแอดมินเท่านั้น
+            let adminActionsHtml = '';
+            if (appState.isAdmin) {
+                adminActionsHtml = `
+                <div class="absolute top-3 right-3 flex gap-1 z-20">
+                    <button onclick="proceedEditExam('${exam.ExamID}')" class="w-8 h-8 rounded-lg bg-slate-50 hover:bg-blue-100 text-slate-400 hover:text-blue-600 flex items-center justify-center transition border border-slate-200" title="แก้ไข"><i class="ph-fill ph-pencil-simple text-lg"></i></button>
+                    <button onclick="proceedDeleteExam('${exam.ExamID}')" class="w-8 h-8 rounded-lg bg-slate-50 hover:bg-red-100 text-slate-400 hover:text-red-600 flex items-center justify-center transition border border-slate-200" title="ลบ"><i class="ph-fill ph-trash text-lg"></i></button>
+                </div>
+                `;
+            }
+
             container.innerHTML += `
                 <div class="glass-card p-6 rounded-2xl flex flex-col h-full hover:shadow-xl transition-all transform hover:-translate-y-1 border-t-4 border-t-emerald-500 relative group overflow-hidden">
                     
-                    <div class="absolute top-3 right-3 flex gap-1 z-20">
-                        <button onclick="authAdminAction('edit', '${exam.ExamID}')" class="w-8 h-8 rounded-lg bg-slate-50 hover:bg-blue-100 text-slate-400 hover:text-blue-600 flex items-center justify-center transition border border-slate-200" title="แก้ไข"><i class="ph-fill ph-pencil-simple text-lg"></i></button>
-                        <button onclick="authAdminAction('delete', '${exam.ExamID}')" class="w-8 h-8 rounded-lg bg-slate-50 hover:bg-red-100 text-slate-400 hover:text-red-600 flex items-center justify-center transition border border-slate-200" title="ลบ"><i class="ph-fill ph-trash text-lg"></i></button>
-                    </div>
+                    ${adminActionsHtml}
 
                     <div class="absolute -right-6 -top-6 w-24 h-24 bg-emerald-50 rounded-full z-0 group-hover:scale-150 transition-transform duration-700 opacity-50 pointer-events-none"></div>
                     <div class="relative z-10 flex justify-between items-start mb-4 pr-16">
@@ -760,7 +792,7 @@
     }
 
     async function exportToExcel(examID) {
-        showLoader('กำลังดาวน์โหลดข้อมูลคะแนน...');
+        showLoader('กำลังดาวน์โหลดข้อมูลคะแนนและดึงเฉลย...');
         try {
             const exam = appState.exams.find(e => e.ExamID === examID);
             if (!exam) { hideLoader(); return; }
@@ -773,30 +805,60 @@
                 return;
             }
 
-            const dataToExport = scoresRes.map((score, index) => {
+            // โหลด Answer Key เพื่อเอาไว้ตรวจทาน 1 - 0
+            const keyRes = await runGasFunc('getAnswerKey', examID);
+            let answerKey = {};
+            if (keyRes && keyRes.KeyData_JSON) {
+                try { answerKey = JSON.parse(keyRes.KeyData_JSON); } catch(e) {}
+            }
+
+            const dataToExportAnswers = [];
+            const dataToExportResults = [];
+
+            scoresRes.forEach((score, index) => {
                 let answerObj = {};
                 if (score.AnswerData) {
                     try { answerObj = JSON.parse(score.AnswerData); } catch (e) {}
                 }
                 
-                let rowData = {
+                let rowDataAns = {
+                    "ลำดับ": index + 1,
+                    "รหัสนักเรียน": score.StudentID,
+                    "คะแนนรวม": score.TotalScore,
+                };
+                
+                let rowDataRes = {
                     "ลำดับ": index + 1,
                     "รหัสนักเรียน": score.StudentID,
                     "คะแนนรวม": score.TotalScore,
                 };
                 
                 for (let i = 1; i <= exam.TotalQs; i++) {
-                    rowData[`ข้อ ${i}`] = answerObj[i] || '-';
+                    let studentAns = answerObj[i] || '-';
+                    rowDataAns[`ข้อ ${i}`] = studentAns;
+                    
+                    let correctAns = answerKey[i] || '';
+                    if (studentAns !== '-' && studentAns === correctAns) {
+                        rowDataRes[`ข้อ ${i}`] = 1;
+                    } else {
+                        rowDataRes[`ข้อ ${i}`] = 0;
+                    }
                 }
-                return rowData;
+                
+                dataToExportAnswers.push(rowDataAns);
+                dataToExportResults.push(rowDataRes);
             });
 
-            const worksheet = XLSX.utils.json_to_sheet(dataToExport);
-            const workbook = XLSX.utils.book_new();
+            const worksheetAnswers = XLSX.utils.json_to_sheet(dataToExportAnswers);
+            const worksheetResults = XLSX.utils.json_to_sheet(dataToExportResults);
             
+            const workbook = XLSX.utils.book_new();
             const filename = `ผลคะแนน_${exam.SubjectName}_${exam.SubjectCode}_ม${exam.ClassLevel}.xlsx`;
             
-            XLSX.utils.book_append_sheet(workbook, worksheet, "คะแนนสอบ");
+            // เพิ่มทั้ง 2 ชีทเข้าไปในไฟล์ Excel เดียวกัน
+            XLSX.utils.book_append_sheet(workbook, worksheetAnswers, "คำตอบรายข้อ");
+            XLSX.utils.book_append_sheet(workbook, worksheetResults, "ผลตรวจรายข้อ (1-0)");
+            
             XLSX.writeFile(workbook, filename);
             
             showAlert('สำเร็จ', 'ดาวน์โหลดไฟล์ Excel เรียบร้อยแล้ว');
