@@ -724,8 +724,7 @@
                     <div class="relative z-10 flex justify-between items-start mb-4 pr-16">
                         <div class="flex-1 pr-2">
                             <h3 class="font-bold text-2xl text-slate-800 leading-tight">${exam.SubjectName}</h3>
-                            <p class="text-base font-semibold text-emerald-600 mt-1">${exam.SubjectCode}</p>
-                            ${exam.SubjectGroup ? `<div class="text-xs font-medium text-slate-500 mt-2 flex items-center bg-slate-100 w-fit px-3 py-1 rounded-full"><i class="ph-fill ph-books mr-1 text-slate-400 text-base"></i>${exam.SubjectGroup}</div>` : ''}
+                            <p class="text-base font-semibold text-emerald-600 mt-1">${exam.SubjectCode}</p>${exam.SubjectGroup ? `<div class="text-xs font-medium text-slate-500 mt-2 flex items-center bg-slate-100 w-fit px-3 py-1 rounded-full"><i class="ph-fill ph-books mr-1 text-slate-400 text-base"></i>${exam.SubjectGroup}</div>` : ''}
                         </div>
                         <span class="bg-emerald-100 text-emerald-800 text-sm px-3 py-1.5 rounded-lg font-bold shrink-0">ชั้น ${dispClass}</span>
                     </div>
@@ -1125,7 +1124,7 @@
                 } else if (qCount <= 30) {
                     qConfig = { rows: 15, r: 18, gapX: 31.3, gapY: 43.78, startY: 449, colXs: [334, 848] };
                 } else if (qCount <= 40) {
-                    qConfig = { rows: 20, r: 18, gapX: 31.66, gapY: 38.31, startY: 449, colXs: [336, 850] };
+                    qConfig = { rows: 20, r: 18, gapX: 31.66, gapY: 43.8, startY: 449, colXs: [336, 850] };
                 } else { // 60
                     qConfig = { rows: 20, r: 18, gapX: 31.6, gapY: 43.7, startY: 450, colXs: [245, 586, 925] };
                 }
