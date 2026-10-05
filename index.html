@@ -621,8 +621,7 @@
         
         if (document.getElementById(`view-${viewId}`)) document.getElementById(`view-${viewId}`).classList.add('active');
         
-        if (document.getElementById(`nav-${viewId}`)) { 
-            let activeBtn = document.getElementById(`nav-${viewId}`);
+        if (document.getElementById(`nav-${viewId}`)) {              let activeBtn = document.getElementById(`nav-${viewId}`);
             activeBtn.classList.remove('text-slate-600', 'border-transparent'); 
             activeBtn.classList.add('bg-emerald-100/50', 'text-primary', 'border-emerald-200', 'shadow-sm'); 
         }
@@ -645,8 +644,7 @@
 
     function applyTheme() {
         document.getElementById('ctx-term').innerText = appState.settings.term; document.getElementById('ctx-year').innerText = appState.settings.year; document.getElementById('ctx-type').innerText = appState.settings.examType;
-        document.getElementById('dynamic-bg').style.backgroundImage = appState.settings.bgUrl ? `url('${appState.settings.bgUrl}')` : 'none';
-        document.getElementById('dynamic-nav-bg').style.backgroundImage = appState.settings.headerBgUrl ? `url('${appState.settings.headerBgUrl}')` : 'none';
+        document.getElementById('dynamic-bg').style.backgroundImage = appState.settings.bgUrl ? `url('${appState.settings.bgUrl}')` : 'none';         document.getElementById('dynamic-nav-bg').style.backgroundImage = appState.settings.headerBgUrl ? `url('${appState.settings.headerBgUrl}')` : 'none';
     }
 
     async function initApp() {
@@ -1117,14 +1115,14 @@
                 let maxScore = appState.currentExam.FullScore;
                 let optionsCount = appState.currentExam.OptionsCount;
 
-                // --- PRECISION GRID MAPPING (คาร์ลิเบรตจากจุดทศนิยมล่าสุด) ---
+                // --- PRECISION GRID MAPPING ---
                 let qConfig = {};
                 if (qCount <= 20) {
                     qConfig = { rows: 10, r: 18, gapX: 31.6, gapY: 43.88, startY: 448, colXs: [332, 848] };
                 } else if (qCount <= 30) {
                     qConfig = { rows: 15, r: 18, gapX: 31.3, gapY: 43.78, startY: 449, colXs: [334, 848] };
                 } else if (qCount <= 40) {
-                    qConfig = { rows: 20, r: 18, gapX: 31.66, gapY: 43.8, startY: 449, colXs: [336, 850] };
+                    qConfig = { rows: 20, r: 13, gapX: 31.1, gapY: 43.71, startY: 449.5, colXs: [334.5, 850] };
                 } else { // 60
                     qConfig = { rows: 20, r: 18, gapX: 31.6, gapY: 43.7, startY: 450, colXs: [245, 586, 925] };
                 }
